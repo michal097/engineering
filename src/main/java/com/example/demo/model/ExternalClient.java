@@ -1,6 +1,5 @@
 package com.example.demo.model;
 
-
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -8,22 +7,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
-
-@Document("client")
+@Document("externalClient")
 @Data
 @Builder
-public class Client {
-
+public class ExternalClient {
     @Id
-    private String clientId;
-    private String username;
+    String externalClientId;
     private String name;
     private String surname;
-    private String adress;
-    private String NIP;
-    private String email;
-    private Set<String> skills;
-    private Set<Invoice> clientInvoices;
+    private String nip;
+    private String bankAccNumber;
 
+    private Set<Invoice> externalClientInvoices;
 
 }

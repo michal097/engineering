@@ -86,7 +86,7 @@ public class AmazonClient {
         return convFile;
     }
     public String generateFileName(MultipartFile multiPart) {
-        return Objects.requireNonNull(multiPart.getOriginalFilename()).replace(" ", "_");
+        return Objects.requireNonNull(multiPart.getOriginalFilename()).replaceAll(" ", "_");
     }
     private void uploadFileTos3bucket(String fileName, File file) {
         s3client.putObject(new PutObjectRequest(bucketName, fileName, file)
@@ -130,6 +130,7 @@ public class AmazonClient {
             String text = "";
             if (b.getBlockType().equals("LINE")) {
                 text += b.getText();
+
             }
             if(!text.isEmpty())
                 list.add(text);

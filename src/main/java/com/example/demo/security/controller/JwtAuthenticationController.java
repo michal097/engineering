@@ -4,6 +4,7 @@ import com.example.demo.security.config.JwtTokenUtil;
 import com.example.demo.security.model.JwtRequest;
 import com.example.demo.security.model.JwtResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,7 +27,7 @@ public class JwtAuthenticationController {
     @Autowired
     public JwtAuthenticationController(AuthenticationManager authenticationManager,
                                        JwtTokenUtil jwtTokenUtil,
-                                       UserDetailsService userDetailsService) {
+                                       @Qualifier("jwtUserDetailsService") UserDetailsService userDetailsService) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;

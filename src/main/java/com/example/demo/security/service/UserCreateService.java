@@ -32,5 +32,6 @@ public class UserCreateService {
         user.setPassword(passwordHash);
 
         return userRepository.save(user);
+
     }
 }
