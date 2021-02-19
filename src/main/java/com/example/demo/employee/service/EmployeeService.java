@@ -23,17 +23,14 @@ public class EmployeeService {
     }
 
     public User createUser(User user) {
-        if (clientRepository.findAll()
-                .stream()
-                .anyMatch(emp -> emp.getUsername()
-                        .equals(user.getUsername()))
-                && userRepository.findAll()
-                .stream()
-                .noneMatch(u -> u.getUsername()
-                        .equals(user.getUsername()))) {
+
+        if (clientRepository.findByUsername(user.getUsername()).isPresent()
+            &&
+            !userRepository.findUserByUsername(user.getUsername()).isPresent()) {
 
             return userCreateService.addWithDefaultRole(user, Role.ROLE_USER.name());
-        } else throw new IllegalArgumentException("error during creating account");
+        }
+         else throw new IllegalArgumentException("error during creating account username: " + user.getUsername() );
     }
 
 }

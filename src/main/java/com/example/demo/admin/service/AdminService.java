@@ -3,10 +3,7 @@ package com.example.demo.admin.service;
 import com.example.demo.model.Client;
 import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
-import com.example.demo.mongoRepo.InvoiceRepo;
-import com.example.demo.security.repository.UserRepository;
-import com.example.demo.security.repository.UserRoleRepository;
-import com.example.demo.security.service.UserCreateService;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,31 +15,22 @@ import java.util.Optional;
 
 
 @Service
+@Slf4j
 public class AdminService {
 
+    private final ClientRepository clientRepository;
+
     @Autowired
-    UserRepository userRepository;
-    @Autowired
-    UserCreateService userCreateService;
-    @Autowired
-    UserRoleRepository userRoleRepository;
-    @Autowired
-    ClientRepository clientRepository;
-    @Autowired
-    InvoiceRepo invoiceRepo;
+    public AdminService(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
+    }
 
     public String makeUserName(String name, String surname) {
-        String username = name.substring(0, 1).concat(surname.substring(1));
-
-        try {
+        String username = deleteSpecialChars(name).substring(0, 1).concat(deleteSpecialChars(surname).substring(1)).toLowerCase();
             Optional<Client> cl = clientRepository.findAllByUsername(username);
-            if(cl.isPresent()) {
-                username = surname.substring(0, 1).concat(name.substring(1));
+            if (cl.isPresent()) {
+                username = deleteSpecialChars(surname).substring(0, 1).concat(deleteSpecialChars(name).substring(1)).toLowerCase();
             }
-        }
-        catch (Exception e){
-            System.out.println("wyjabalo siem");
-        }
         return username;
     }
 
@@ -75,18 +63,24 @@ public class AdminService {
                 findUserData.put("fvNr", list.get(i).split(" ")[2]);
             }
         }
-        for (Map.Entry<String, String> map : findUserData.entrySet()) {
-            System.out.println(map.getKey() + " ::: " + map.getValue());
-
-        }
-
+        log.info("retrieving data from invoice using ocr");
         return Invoice.builder().invName(findUserData.get("name"))
-        .invSurname(findUserData.get("surname"))
-        .NIP(findUserData.get("NIP"))
-        .costs(Double.parseDouble(findUserData.get("costs")))
-        .bankAccNumber(findUserData.get("bank"))
-        .fvNumber(findUserData.get("fvNr"))
-        .build();
+                .invSurname(findUserData.get("surname"))
+                .NIP(findUserData.get("NIP"))
+                .costs(Double.parseDouble(findUserData.get("costs")))
+                .bankAccNumber(findUserData.get("bank"))
+                .fvNumber(findUserData.get("fvNr"))
+                .build();
+
+    }
+
+    private static String deleteSpecialChars(String str) {
+        return str.replaceAll("ą", "a")
+                .replaceAll("ę", "e")
+                .replaceAll("ć", "c")
+                .replaceAll("ł", "l")
+                .replaceAll("ó", "o");
+
 
     }
 }

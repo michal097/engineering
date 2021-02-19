@@ -9,4 +9,6 @@ public interface ClientRepository extends MongoRepository<Client, String> {
     Optional<Client> findAllByUsername(String username);
 
     Optional<Client> findByNIP(String nip);
+
+    Optional<Client> findByUsername(String username);
 }

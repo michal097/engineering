@@ -85,13 +85,16 @@ public class AmazonClient {
         fos.close();
         return convFile;
     }
+
     public String generateFileName(MultipartFile multiPart) {
         return Objects.requireNonNull(multiPart.getOriginalFilename()).replaceAll(" ", "_");
     }
+
     private void uploadFileTos3bucket(String fileName, File file) {
         s3client.putObject(new PutObjectRequest(bucketName, fileName, file)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
     }
+
     public void uploadFile(MultipartFile multipartFile) {
 
 
@@ -110,7 +113,7 @@ public class AmazonClient {
         return "Successfully deleted";
     }
 
-    public List<String> detectTextOnImg(String photo){
+    public List<String> detectTextOnImg(String photo) {
 
         AwsClientBuilder.EndpointConfiguration endpoint = new AwsClientBuilder.EndpointConfiguration(
                 textractUrl, region);
@@ -132,10 +135,10 @@ public class AmazonClient {
                 text += b.getText();
 
             }
-            if(!text.isEmpty())
+            if (!text.isEmpty())
                 list.add(text);
         }
         list.forEach(System.out::println);
         return list;
     }
-    }
+}

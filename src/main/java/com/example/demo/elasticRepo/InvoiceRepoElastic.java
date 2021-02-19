@@ -10,5 +10,5 @@ public interface InvoiceRepoElastic extends ElasticsearchRepository<Invoice, Str
     List<Invoice> findAll();
 
     @Query("{\"multi_match\": {\"query\": \"?0\", \"fields\": [\"invName\",\"invSurname\"], \"fuzziness\": 10,\"prefix_length\": 1}}")
-    List<Invoice> findNIPWithFuzziness(String nip);
+    List<Invoice> findNIPWithFuzziness(String phrase);
 }

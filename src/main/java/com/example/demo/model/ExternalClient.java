@@ -3,16 +3,17 @@ package com.example.demo.model;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.elasticsearch.annotations.Document;
+
 
 import java.util.Set;
 
-@Document("externalClient")
+@Document(indexName = "externalclient")
 @Data
 @Builder
 public class ExternalClient {
     @Id
-    String externalClientId;
+    private String externalClientId;
     private String name;
     private String surname;
     private String nip;

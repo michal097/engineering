@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ClientInvoiceService {
@@ -22,10 +23,10 @@ public class ClientInvoiceService {
     private final ExternalClientRepo externalClientRepo;
 
     @Autowired
-    public ClientInvoiceService(ClientRepository clientRepository, InvoiceRepo invoiceRepo, ExternalClientRepo externalClientRepo){
-        this.clientRepository=clientRepository;
-        this.invoiceRepo=invoiceRepo;
-        this.externalClientRepo=externalClientRepo;
+    public ClientInvoiceService(ClientRepository clientRepository, InvoiceRepo invoiceRepo, ExternalClientRepo externalClientRepo) {
+        this.clientRepository = clientRepository;
+        this.invoiceRepo = invoiceRepo;
+        this.externalClientRepo = externalClientRepo;
     }
 
     public void checkClient(Invoice invoice) {
@@ -38,18 +39,23 @@ public class ClientInvoiceService {
 
         if (clientIsPresent.isPresent()) {
             var client = clientIsPresent.get();
-            if(client.getClientInvoices() == null){
+            if (client.getClientInvoices() == null) {
                 client.setClientInvoices(new HashSet<>());
             }
             client.getClientInvoices().add(invoice);
 
             clientRepository.save(client);
-        }else if(externalClient.isPresent()){
+        } else if (externalClient.isPresent()) {
             var extClient = externalClient.get();
-            extClient.getExternalClientInvoices().add(invoice);
+            if(extClient.getExternalClientInvoices() == null){
+                Set<Invoice> inv = new HashSet<>();
+                inv.add(invoice);
+                extClient.setExternalClientInvoices(inv);
+            }else {
+                extClient.getExternalClientInvoices().add(invoice);
+            }
             externalClientRepo.save(extClient);
-        }
-        else{
+        } else {
             var newExternalClient = ExternalClient.builder()
                     .name(invoice.getInvName())
                     .surname(invoice.getInvSurname())
@@ -61,15 +67,12 @@ public class ClientInvoiceService {
 
     }
 
-    public void saveInvoice(Invoice invoice){
-        Optional<Invoice> isAlreadyInRepo = invoiceRepo.findAll()
-                .stream()
-                .filter(i->i.getFvNumber()
-                        .equals(invoice.getFvNumber()))
-                .findAny();
+    public void saveInvoice(Invoice invoice) {
 
-        if(!isAlreadyInRepo.isPresent()){
-          invoiceRepo.save(invoice);
+        Optional<Invoice> isAlreadyInRepo = invoiceRepo.findByFvNumber(invoice.getFvNumber());
+
+        if (!isAlreadyInRepo.isPresent()) {
+            invoiceRepo.save(invoice);
         }
     }
 }
