@@ -13,10 +13,11 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
     private final ClientRepository clientRepository;
+
     @Autowired
     public EmployeeController(EmployeeService employeeService, ClientRepository clientRepository) {
         this.employeeService = employeeService;
-        this.clientRepository=clientRepository;
+        this.clientRepository = clientRepository;
     }
 
     @PostMapping("createAndSaveUser")
@@ -28,5 +29,24 @@ public class EmployeeController {
     @GetMapping("getEmployee/{id}")
     public Client getClient(@PathVariable String id) throws Exception {
         return clientRepository.findById(id).orElseThrow(Exception::new);
+    }
+
+    @PutMapping("updateEmployee/{id}")
+    public Client updateClient(@RequestBody Client client, @PathVariable String id) {
+        return clientRepository.findById(id)
+                .map(c -> {
+                    c.setName(client.getName());
+                    c.setSurname(client.getSurname());
+                    c.setAdress(client.getAdress());
+                    c.setEmail(client.getEmail());
+                    c.setNIP(client.getNIP());
+                    c.setSkills(client.getSkills());
+                    return clientRepository.save(c);
+                }).orElseGet(
+                        () -> {
+                            client.setClientId(id);
+                            return clientRepository.save(client);
+                        }
+                );
     }
 }

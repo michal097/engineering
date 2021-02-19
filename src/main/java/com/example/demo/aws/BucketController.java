@@ -38,19 +38,23 @@ public class BucketController {
         log.info("File with name {} has been uploaded", file.getName());
     }
 
-    @GetMapping("saveInvInClient")
-    public void saveClientInv() {
-        invoiceRepo.findByFvNumber(invoice.getFvNumber()).ifPresent(t -> {
+    @PostMapping("saveInvInClient")
+    public void saveClientInv(@RequestBody Invoice inv) {
+        invoiceRepo.findByFvNumber(inv.getFvNumber()).ifPresent(t -> {
             log.error("Following invoice already exists in database");
             throw new IllegalArgumentException(t.toString());
         });
-        clientInvoiceService.saveInvoice(invoice);
-        clientInvoiceService.checkClient(invoice);
+        clientInvoiceService.saveInvoice(inv);
+        clientInvoiceService.checkClient(inv);
     }
 
     @DeleteMapping("/deleteFile")
     public String deleteFile(@RequestPart(value = "url") String fileUrl) {
         return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
+    }
+    @GetMapping("inv")
+    public Invoice inv(){
+        return invoice;
     }
 
 }

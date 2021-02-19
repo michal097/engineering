@@ -3,6 +3,7 @@ package com.example.demo.admin.controller;
 import com.example.demo.admin.service.AdminService;
 import com.example.demo.elasticRepo.ExtClientRepoElastic;
 import com.example.demo.elasticRepo.InvoiceRepoElastic;
+import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
@@ -43,6 +44,8 @@ public class InitController {
     ExtClientRepoElastic extClientRepoElastic;
     @Autowired
     ExternalClientRepo externalClientRepo;
+    @Autowired
+    ClientRepository clientRepository;
 
     @GetMapping("setRoles")
     public String setRolesInRepoLALALA() {
@@ -100,6 +103,11 @@ public class InitController {
     public List<Invoice> iins(){
         invoiceRepo.deleteAll();
         return invoiceRepo.findAll();
+    }
+
+    @GetMapping("client")
+    public Client c(){
+        return clientRepository.findAll().get(0);
     }
 
 }
