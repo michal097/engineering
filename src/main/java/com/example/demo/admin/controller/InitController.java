@@ -1,6 +1,5 @@
 package com.example.demo.admin.controller;
 
-import com.example.demo.admin.service.AdminService;
 import com.example.demo.elasticRepo.ExtClientRepoElastic;
 import com.example.demo.elasticRepo.InvoiceRepoElastic;
 import com.example.demo.model.Client;
@@ -78,7 +77,7 @@ public class InitController {
         user.setUsername("admin");
         user.setPassword("admin");
 
-        userCreateService.addWithDefaultRole(user, "ROLE_ADMIN");
+        userCreateService.addWithDefaultRole(user, Role.ROLE_ADMIN.name());
         userRepository.save(user);
 
         return "hello";
@@ -99,6 +98,10 @@ public class InitController {
 
     }
 
+    @GetMapping("cleanElastic")
+    public void cleanMe(){
+
+    }
     @GetMapping("invs")
     public List<Invoice> iins(){
         invoiceRepo.deleteAll();
