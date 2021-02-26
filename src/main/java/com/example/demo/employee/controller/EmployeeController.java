@@ -31,6 +31,11 @@ public class EmployeeController {
         return clientRepository.findById(id).orElseThrow(Exception::new);
     }
 
+    @DeleteMapping("deleteEmployee/{id}")
+    public void deleteEmployee(@PathVariable String id ){
+        clientRepository.deleteById(id);
+    }
+
     @PutMapping("updateEmployee/{id}")
     public Client updateClient(@RequestBody Client client, @PathVariable String id) {
         return clientRepository.findById(id)

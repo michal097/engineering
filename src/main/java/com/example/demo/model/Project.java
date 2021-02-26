@@ -20,6 +20,7 @@ public class Project {
     private LocalDate deadLineDate;
     private String description;
     private Set<String> technologies;
+    private int peopleNeeded;
 
     @DBRef
     private Set<Client> employeesOnProject;
