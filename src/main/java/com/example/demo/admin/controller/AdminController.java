@@ -7,20 +7,16 @@ import com.example.demo.model.Client;
 import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
-import lombok.var;
-import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
 
 @RestController
 @CrossOrigin
@@ -37,7 +33,7 @@ public class AdminController {
         this.mailService = mailService;
         this.adminService = adminService;
         this.clientRepository = clientRepository;
-        this.projectService=projectService;
+        this.projectService = projectService;
     }
 
 
@@ -51,25 +47,55 @@ public class AdminController {
 
         client.setUsername(adminService.makeUserName(client.getName(), client.getSurname()));
         mailService.sendSimpleMail(client.getEmail(), "Utworzono konto", "zaloguj sie na stronę: http://localhost:4200 przy użyciu username: " + client.getUsername());
-        log.info("user with username, {} has been created",client.getUsername());
+        log.info("user with username, {} has been created", client.getUsername());
         log.info("mail has been sent do mail {}", client.getEmail());
 
-        Optional<Client> isAlreadyPresent = clientRepository.findAll().stream().filter(n->n.getNIP().equals(client.getNIP())).findAny();
-        if(isAlreadyPresent.isPresent()) {
-         log.error("such client already exist in database");
-         throw new IllegalArgumentException();
+        Optional<Client> isAlreadyPresent = clientRepository.findAll().stream().filter(n -> n.getNIP().equals(client.getNIP())).findAny();
+        if (isAlreadyPresent.isPresent()) {
+            log.error("such client already exist in database");
+            throw new IllegalArgumentException();
         }
         return clientRepository.save(client);
 
     }
 
     @PostMapping("/addProj")
-    public Project addProjectRes(@RequestBody Project project){
+    public Project addProjectRes(@RequestBody Project project) {
         return projectService.addProject(project);
     }
 
     @GetMapping("listAllEmployees/{page}/{size}")
-    public List<Client> listAllEmployees(@PathVariable int page, @PathVariable int size){
-        return clientRepository.findAll(PageRequest.of(page,size, Sort.Direction.ASC, "name","surname")).getContent();
+    public List<Client> listAllEmployees(@PathVariable int page, @PathVariable int size) {
+        return clientRepository.findAll(PageRequest.of(page, size, Sort.Direction.ASC, "name", "surname")).getContent();
+    }
+
+    @GetMapping("allEmpLength")
+    public Integer empLen() {
+        return clientRepository.findAll().size();
+
+    }
+
+    @GetMapping("employeeProjects/{id}")
+    public Set<Object> employeeProjects(@PathVariable String id) {
+        return projectService.findProjectsByEmployee(id);
+    }
+
+    @GetMapping("listProjects/{page}/{size}")
+    public List<Project> projects(@PathVariable int page, @PathVariable int size) {
+        return projectService.projectsList(page, size);
+    }
+    @GetMapping("listProjectsLength")
+    public Long listProjectsLenght(){
+        return projectService.projectsLength();
+    }
+
+    @GetMapping("project/{id}")
+    public Project getProject(@PathVariable String id) throws Exception{
+        return projectService.getProjectById(id);
+    }
+    @PostMapping("endOfProject/{projectName}")
+    public Project setEndOfProject(@PathVariable String projectName){
+        System.out.println("no elo");
+        return projectService.endProject(projectName);
     }
 }

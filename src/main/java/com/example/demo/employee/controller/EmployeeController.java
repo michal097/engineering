@@ -1,5 +1,6 @@
 package com.example.demo.employee.controller;
 
+import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.employee.service.EmployeeService;
 import com.example.demo.model.Client;
 import com.example.demo.mongoRepo.ClientRepository;
@@ -7,17 +8,20 @@ import com.example.demo.security.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @CrossOrigin
 public class EmployeeController {
 
     private final EmployeeService employeeService;
     private final ClientRepository clientRepository;
+    private final ClientRepoElastic clientRepoElastic;
 
     @Autowired
-    public EmployeeController(EmployeeService employeeService, ClientRepository clientRepository) {
+    public EmployeeController(EmployeeService employeeService, ClientRepository clientRepository, ClientRepoElastic clientRepoElastic) {
         this.employeeService = employeeService;
         this.clientRepository = clientRepository;
+        this.clientRepoElastic = clientRepoElastic;
     }
 
     @PostMapping("createAndSaveUser")
@@ -32,8 +36,9 @@ public class EmployeeController {
     }
 
     @DeleteMapping("deleteEmployee/{id}")
-    public void deleteEmployee(@PathVariable String id ){
+    public void deleteEmployee(@PathVariable String id) {
         clientRepository.deleteById(id);
+        clientRepoElastic.deleteById(id);
     }
 
     @PutMapping("updateEmployee/{id}")
@@ -46,6 +51,9 @@ public class EmployeeController {
                     c.setEmail(client.getEmail());
                     c.setNIP(client.getNIP());
                     c.setSkills(client.getSkills());
+                    clientRepoElastic.findById(id).map(e ->
+                            clientRepoElastic.save(c)
+                    );
                     return clientRepository.save(c);
                 }).orElseGet(
                         () -> {

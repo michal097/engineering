@@ -21,6 +21,7 @@ public class Project {
     private String description;
     private Set<String> technologies;
     private int peopleNeeded;
+    private Boolean ended;
 
     @DBRef
     private Set<Client> employeesOnProject;

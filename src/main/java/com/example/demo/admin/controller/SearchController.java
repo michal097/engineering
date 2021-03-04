@@ -6,7 +6,6 @@ import com.example.demo.elasticRepo.InvoiceRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
-import com.example.demo.mongoRepo.ExternalClientRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;

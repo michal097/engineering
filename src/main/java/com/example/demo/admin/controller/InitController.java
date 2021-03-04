@@ -6,6 +6,7 @@ import com.example.demo.elasticRepo.InvoiceRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
+import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.ExternalClientRepo;
 import com.example.demo.mongoRepo.InvoiceRepo;
@@ -117,8 +118,8 @@ public class InitController {
     }
 
     @GetMapping("client")
-    public Client c(){
-        return clientRepository.findAll().get(0);
+    public List<Client> c(){
+        return clientRepository.findAll();
     }
 
     @GetMapping("clDate")
@@ -131,6 +132,7 @@ public class InitController {
 
     @Autowired
     private ProjectRepository projectRepository;
+
     @Autowired
     private ClientRepoElastic clientRepoElastic;
     @GetMapping("clBusy")
@@ -152,4 +154,17 @@ public class InitController {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
+    @GetMapping("clel")
+    public List<Client> cccsss(){
+       return clientRepoElastic.findAll();
+    }
+
+    @GetMapping("pro")
+    public List<Project> getAllProjs(){
+        projectRepository.deleteAll();
+        clientRepository.deleteAll();
+        clientRepoElastic.deleteAll();
+
+        return projectRepository.findAll();
+    }
 }

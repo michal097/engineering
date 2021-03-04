@@ -8,11 +8,16 @@ import com.example.demo.mongoRepo.ProjectRepository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 
-
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @Service
@@ -24,7 +29,7 @@ public class ProjectService {
     private final ClientRepoElastic clientRepoElastic;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository,ClientRepoElastic clientRepoElastic) {
+    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository, ClientRepoElastic clientRepoElastic) {
         this.projectRepository = projectRepository;
         this.clientRepository = clientRepository;
         this.clientRepoElastic = clientRepoElastic;
@@ -34,7 +39,7 @@ public class ProjectService {
 
         return clientRepository.findAll()
                 .stream()
-                .filter(date -> date.getIsBusy() != null ? date.getIsBusy() : false)
+                .filter(date -> date.getIsBusy() != null ? !date.getIsBusy() : date.setIsBusyInFilter())
                 .filter(skills -> {
                     boolean skillsPresent = false;
                     for (String s : project.getTechnologies()) {
@@ -44,18 +49,67 @@ public class ProjectService {
                         }
                     }
                     return skillsPresent;
-                }).limit(project.getPeopleNeeded())
-                .peek(c -> {
-                   var client =  clientRepository.findById(c.getClientId()).get();
-                    client.setStartProject(project.getStartDate());
-                    client.setIsBusy(true);
-                    client.addProject(project);
-                    clientRepository.save(client);
                 })
-                  .collect(toSet());
+                .limit(project.getPeopleNeeded())
+                .peek(c -> clientRepository.findById(c.getClientId())
+                        .ifPresent(
+                                cl -> {
+                                    cl.addProject(project);
+                                    cl.setStartProject(project.getStartDate());
+                                    cl.setIsBusy(true);
+                                    clientRepository.save(cl);
+                                }
+                        ))
+                .collect(toSet());
+
     }
-    public Project addProject(Project project){
+
+    public Project addProject(Project project) {
         project.setEmployeesOnProject(this.addProjectAndAssignPeople(project));
+        project.setEnded(false);
         return projectRepository.save(project);
     }
+
+    public List<Project> projectsList(int page, int size) {
+        return projectRepository.findAll(PageRequest.of(page, size)).getContent().stream().filter(p -> p.getEnded() != null && !p.getEnded()).collect(toList());
+    }
+
+    public long projectsLength() {
+        return projectRepository.findAll().size();
+    }
+
+    public Set<Object> findProjectsByEmployee(String clientId) {
+        return clientRepository.findAll()
+                .stream()
+                .filter(emp -> emp.getProjects() != null && emp.getClientId().equals(clientId))
+                .flatMap(c -> c.getProjects().stream())
+                .collect(toSet());
+    }
+
+    public Project getProjectById(String projectName) throws Exception {
+        return projectRepository.findAll().stream().filter(p -> p.getProjectName().equals(projectName)).findFirst().orElseThrow(Exception::new);
+    }
+
+    private void changeBusyOnClient(Project p) {
+
+        p.getEmployeesOnProject().forEach(c-> {
+            c.setIsBusy(false);
+            clientRepository.save(c);
+        });
+
+
+    }
+
+    public Project endProject(String projectName) {
+        projectRepository.findProjectByProjectName(projectName).map(project -> {
+            this.changeBusyOnClient(project);
+            project.setDeadLineDate(LocalDate.now());
+            project.setEmployeesOnProject(new HashSet<>());
+            project.setEnded(true);
+
+            return projectRepository.save(project);
+        });
+        return null;
+    }
+
 }
