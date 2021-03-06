@@ -35,6 +35,7 @@ public class BucketController {
     public void uploadFile(@RequestParam("file") MultipartFile file) {
         amazonClient.uploadFile(file);
         invoice = adminService.prepareReadedData(amazonClient.detectTextOnImg(amazonClient.generateFileName(file)));
+        invoice.setInvoiceURL("https://enigeeringbucket.s3.us-east-2.amazonaws.com/"+amazonClient.generateFileName(file));
         log.info("File with name {} has been uploaded", file.getName());
     }
 

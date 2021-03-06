@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class IssueService {
 
@@ -27,5 +29,11 @@ public class IssueService {
         client.ifPresent(issue::setReporter);
         issue.setStatus(EIssue.ASSIGNED);
         return issueRepo.save(issue);
+    }
+    public List<Issue> listAllIssues(){
+        return issueRepo.findAll();
+    }
+    public Issue getIssue(String issueId) throws Exception{
+        return issueRepo.findById(issueId).orElseThrow(Exception::new);
     }
 }

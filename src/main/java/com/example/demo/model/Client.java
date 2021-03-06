@@ -35,6 +35,10 @@ public class Client {
         }
         this.projects.add(project);
     }
+    public boolean setClientInv(){
+        this.setClientInvoices(new HashSet<>());
+        return true;
+    }
 
 
     public boolean setIsBusyInFilter(){

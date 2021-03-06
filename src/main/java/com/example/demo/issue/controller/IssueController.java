@@ -3,10 +3,9 @@ package com.example.demo.issue.controller;
 import com.example.demo.issue.service.IssueService;
 import com.example.demo.model.Issue;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -22,5 +21,14 @@ public class IssueController {
     @PostMapping("addIssue")
     public Issue addNewIssue(@RequestBody Issue issue){
         return issueService.addNewIssue(issue);
+    }
+
+    @GetMapping("allIssues")
+    public List<Issue> allIssues(){
+        return issueService.listAllIssues();
+    }
+    @GetMapping("getIssue/{id}")
+    public Issue getIssue(@PathVariable String id) throws Exception{
+        return issueService.getIssue(id);
     }
 }

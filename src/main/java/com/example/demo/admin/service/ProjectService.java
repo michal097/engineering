@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -75,7 +76,7 @@ public class ProjectService {
     }
 
     public long projectsLength() {
-        return projectRepository.findAll().size();
+        return projectRepository.findAll().stream().filter(p -> p.getDeadLineDate() == null).count();
     }
 
     public Set<Object> findProjectsByEmployee(String clientId) {
@@ -87,6 +88,7 @@ public class ProjectService {
     }
 
     public Project getProjectById(String projectName) throws Exception {
+        System.out.println(projectName);
         return projectRepository.findAll().stream().filter(p -> p.getProjectName().equals(projectName)).findFirst().orElseThrow(Exception::new);
     }
 
@@ -96,9 +98,20 @@ public class ProjectService {
             c.setIsBusy(false);
             clientRepository.save(c);
         });
-
-
     }
+
+    public List<Client> findClientsToProject(String projectName){
+        var project = projectRepository.findProjectByProjectName(projectName);
+        var technologies = project.isPresent() ? project.get().getTechnologies(): new HashSet();
+        var calculatePeopleOnProj = project.get().getPeopleNeeded() - project.get().getEmployeesOnProject().size();
+        return clientRepository.findAll()
+                .stream()
+                .filter(c->c.getIsBusy() != null ? !c.getIsBusy() : c.setIsBusyInFilter())
+                .filter(c -> c.getSkills().containsAll(technologies))
+                .limit(calculatePeopleOnProj)
+                .collect(toList());
+    }
+
 
     public Project endProject(String projectName) {
         projectRepository.findProjectByProjectName(projectName).map(project -> {
@@ -110,6 +123,23 @@ public class ProjectService {
             return projectRepository.save(project);
         });
         return null;
+    }
+
+    public Client addEmployeeToSpecProject(String clientId, Project project){
+        var client = clientRepository.findById(clientId);
+        client.ifPresent(c-> {
+            c.addProject(project);
+            c.setIsBusy(true);
+        });
+        client.ifPresent(c -> this.updateProject(project, c));
+        return client.map(clientRepository::save).orElse(null);
+    }
+
+    public void updateProject(Project project, Client client){
+        projectRepository.findProjectByProjectName(project.getProjectName()).map(p-> {
+            p.getEmployeesOnProject().add(client);
+            return projectRepository.save(p);
+        });
     }
 
 }

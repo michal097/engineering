@@ -24,5 +24,6 @@ public class Invoice {
     private String invSurname;
     private String NIP;
     private double costs;
+    private String invoiceURL;
 
 }

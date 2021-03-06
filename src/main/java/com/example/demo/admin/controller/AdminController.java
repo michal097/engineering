@@ -72,7 +72,6 @@ public class AdminController {
     @GetMapping("allEmpLength")
     public Integer empLen() {
         return clientRepository.findAll().size();
-
     }
 
     @GetMapping("employeeProjects/{id}")
@@ -95,7 +94,16 @@ public class AdminController {
     }
     @PostMapping("endOfProject/{projectName}")
     public Project setEndOfProject(@PathVariable String projectName){
-        System.out.println("no elo");
         return projectService.endProject(projectName);
+    }
+
+    @GetMapping("getEmployeesToProject/{projectName}")
+    public List<Client> clientsToProject(@PathVariable String projectName){
+        return projectService.findClientsToProject(projectName);
+    }
+
+    @PostMapping("addEmpToSpecProj/{clientId}")
+    public Client addClientToProject(@PathVariable String clientId, @RequestBody Project project){
+        return projectService.addEmployeeToSpecProject(clientId, project);
     }
 }
