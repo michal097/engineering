@@ -31,4 +31,18 @@ public class IssueController {
     public Issue getIssue(@PathVariable String id) throws Exception{
         return issueService.getIssue(id);
     }
+    @PostMapping("makeWorkInProgress")
+    public Issue makeIssueWorkInProgress(@RequestBody Issue issue){
+
+        return issueService.makeWorkInProgress(issue);
+    }
+    @PostMapping("saveIssueSolution")
+    public Issue saveIssueSolution(@RequestBody Issue issue){
+        return issueService.saveIssueSolution(issue);
+    }
+    @GetMapping("issuesCount")
+    public int getIssuesCount(){
+        System.out.println("asdasdasd");
+        return issueService.getCount();
+    }
 }
