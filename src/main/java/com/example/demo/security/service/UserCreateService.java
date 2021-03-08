@@ -1,6 +1,7 @@
 package com.example.demo.security.service;
 
 
+import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
 import com.example.demo.security.model.UserRole;
 import com.example.demo.security.repository.UserRepository;
@@ -25,7 +26,7 @@ public class UserCreateService {
         this.userRoleRepository = userRoleRepository;
     }
 
-    public User addWithDefaultRole(User user, String roleName) {
+    public User addWithDefaultRole(User user, Role roleName) {
         UserRole defaultRole = userRoleRepository.findByRole(roleName);
         user.getRoles().add(defaultRole);
         String passwordHash = passwordEncoder.encode(user.getPassword());

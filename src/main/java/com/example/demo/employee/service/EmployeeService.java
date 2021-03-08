@@ -5,6 +5,7 @@ import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
 import com.example.demo.security.repository.UserRepository;
 import com.example.demo.security.service.UserCreateService;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +24,10 @@ public class EmployeeService {
     }
 
     public User createUser(User user) {
-
-        if (clientRepository.findByUsername(user.getUsername()).isPresent()
-            &&
-            !userRepository.findUserByUsername(user.getUsername()).isPresent()) {
-
-            return userCreateService.addWithDefaultRole(user, Role.ROLE_USER.name());
-        }
-         else throw new IllegalArgumentException("error during creating account username: " + user.getUsername() );
+        var clientIsPresentInRepo = clientRepository.findByUsername(user.getUsername());
+        var usernameIsAlreadyTaken = !userRepository.findUserByUsername(user.getUsername()).isPresent();
+        if (clientIsPresentInRepo.isPresent() && usernameIsAlreadyTaken) {
+            return userCreateService.addWithDefaultRole(user, clientIsPresentInRepo.get().getUserType());
+        } else throw new IllegalArgumentException("error during creating account username: " + user.getUsername());
     }
-
-
-
 }

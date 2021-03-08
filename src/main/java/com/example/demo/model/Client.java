@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 
+import com.example.demo.security.model.Role;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
@@ -28,6 +29,8 @@ public class Client {
     private Set<Invoice> clientInvoices;
     private Boolean isBusy;
     private Set<Object> projects;
+
+    private Role userType;
 
     public void addProject(Project project){
         if(this.projects == null){

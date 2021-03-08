@@ -27,8 +27,6 @@ public class IssueService {
 
     }
 
-
-
     public Issue addNewIssue(Issue issue){
         var reporter = SecurityContextHolder.getContext().getAuthentication().getName();
         var client = clientRepository.findAllByUsername(reporter);

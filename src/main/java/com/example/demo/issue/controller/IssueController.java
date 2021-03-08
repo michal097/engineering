@@ -40,9 +40,4 @@ public class IssueController {
     public Issue saveIssueSolution(@RequestBody Issue issue){
         return issueService.saveIssueSolution(issue);
     }
-    @GetMapping("issuesCount")
-    public int getIssuesCount(){
-        System.out.println("asdasdasd");
-        return issueService.getCount();
-    }
 }

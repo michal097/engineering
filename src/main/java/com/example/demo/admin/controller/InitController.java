@@ -86,7 +86,7 @@ public class InitController {
         user.setUsername("admin");
         user.setPassword("admin");
 
-        userCreateService.addWithDefaultRole(user, Role.ROLE_ADMIN.name());
+        userCreateService.addWithDefaultRole(user, Role.ROLE_ADMIN);
         userRepository.save(user);
 
         return "hello";
