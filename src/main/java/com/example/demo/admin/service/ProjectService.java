@@ -88,7 +88,6 @@ public class ProjectService {
     }
 
     public Project getProjectById(String projectName) throws Exception {
-        System.out.println(projectName);
         return projectRepository.findAll().stream().filter(p -> p.getProjectName().equals(projectName)).findFirst().orElseThrow(Exception::new);
     }
 

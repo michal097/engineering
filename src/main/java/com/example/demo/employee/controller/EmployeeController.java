@@ -6,7 +6,9 @@ import com.example.demo.model.Client;
 import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.InvoiceRepo;
+import com.example.demo.mongoRepo.ProjectRepository;
 import com.example.demo.security.model.User;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,12 +25,18 @@ public class EmployeeController {
     private final ClientRepository clientRepository;
     private final ClientRepoElastic clientRepoElastic;
     private final InvoiceRepo invoiceRepo;
+    private final ProjectRepository projectRepository;
     @Autowired
-    public EmployeeController(EmployeeService employeeService, ClientRepository clientRepository, ClientRepoElastic clientRepoElastic, InvoiceRepo invoiceRepo) {
+    public EmployeeController(EmployeeService employeeService,
+                              ClientRepository clientRepository,
+                              ClientRepoElastic clientRepoElastic,
+                              InvoiceRepo invoiceRepo,
+                              ProjectRepository projectRepository) {
         this.employeeService = employeeService;
         this.clientRepository = clientRepository;
         this.clientRepoElastic = clientRepoElastic;
         this.invoiceRepo=invoiceRepo;
+        this.projectRepository=projectRepository;
     }
 
     @PostMapping("createAndSaveUser")
@@ -43,9 +51,17 @@ public class EmployeeController {
     }
 
     @DeleteMapping("deleteEmployee/{id}")
-    public void deleteEmployee(@PathVariable String id) {
-        clientRepository.deleteById(id);
-        clientRepoElastic.deleteById(id);
+    public Object deleteEmployee(@PathVariable String id) {
+        var client = clientRepository.findById(id);
+
+        return client.map(value -> projectRepository.findAll().stream().filter(p -> p.getEmployeesOnProject().contains(value))
+                .map(cOnPro -> {
+                    cOnPro.getEmployeesOnProject().remove(value);
+                    clientRepository.deleteById(id);
+                    clientRepoElastic.deleteById(id);
+                    return projectRepository.save(cOnPro);
+                })).orElse(null);
+
     }
 
     @PutMapping("updateEmployee/{id}")
@@ -81,7 +97,6 @@ public class EmployeeController {
 
         final String[] invURL = {""};
         invoiceRepo.findByFvNumber(invoiceNumber.replaceAll("_","/")).ifPresent(c-> invURL[0] = (c.getInvoiceURL()));
-        System.out.println(invURL[0]);
         return invURL[0];
     }
 

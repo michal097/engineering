@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -29,6 +30,7 @@ public class Client {
     private Set<Invoice> clientInvoices;
     private Boolean isBusy;
     private Set<Object> projects;
+    private Set<HolidayProposal> holidayProposals;
 
     private Role userType;
 

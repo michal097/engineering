@@ -138,7 +138,6 @@ public class AmazonClient {
             if (!text.isEmpty())
                 list.add(text);
         }
-        list.forEach(System.out::println);
         return list;
     }
 }

@@ -1,7 +1,6 @@
 package com.example.demo.employee.service;
 
 import com.example.demo.mongoRepo.ClientRepository;
-import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
 import com.example.demo.security.repository.UserRepository;
 import com.example.demo.security.service.UserCreateService;
