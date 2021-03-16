@@ -56,7 +56,7 @@ public class IssueService {
             }
         }
 
-        return issueRepo.findAll();
+        return issueRepo.findAll().stream().filter(issue -> issue.getStatus().equals(EIssue.FINISHED)).collect(Collectors.toList());
     }
     public Issue getIssue(String issueId) throws Exception{
         return issueRepo.findById(issueId).orElseThrow(Exception::new);

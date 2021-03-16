@@ -25,5 +25,6 @@ public class Invoice {
     private String NIP;
     private double costs;
     private String invoiceURL;
+    private boolean paid;
 
 }

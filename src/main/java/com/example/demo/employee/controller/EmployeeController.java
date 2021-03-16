@@ -3,6 +3,7 @@ package com.example.demo.employee.controller;
 import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.employee.service.EmployeeService;
 import com.example.demo.model.Client;
+import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.InvoiceRepo;
@@ -12,6 +13,7 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -99,5 +101,22 @@ public class EmployeeController {
         invoiceRepo.findByFvNumber(invoiceNumber.replaceAll("_","/")).ifPresent(c-> invURL[0] = (c.getInvoiceURL()));
         return invURL[0];
     }
+
+    @GetMapping("allExternals")
+    public List<ExternalClient> allExternals(){
+        return employeeService.allExternals();
+    }
+
+    @GetMapping("getExternal/{id}")
+    public ExternalClient getExternal(@PathVariable String id){
+        return employeeService.getExternalClient(id);
+    }
+
+    @GetMapping("getExternalClientInvoices/{id}")
+    public Set<Invoice> externalInvoices(@PathVariable String id){
+        return employeeService.getExternalClientInvoices(id);
+    }
+
+
 
 }
