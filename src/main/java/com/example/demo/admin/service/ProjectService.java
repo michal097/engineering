@@ -63,6 +63,7 @@ public class ProjectService {
 
     public Project addProject(Project project) {
         boolean alreadyTaken = projectRepository.findProjectByProjectName(project.getProjectName()).isPresent();
+        System.out.println(project);
         if (alreadyTaken) throw new IllegalArgumentException();
         project.setProjectName(project.getProjectName().trim());
         project.setEmployeesOnProject(this.addProjectAndAssignPeople(project));
