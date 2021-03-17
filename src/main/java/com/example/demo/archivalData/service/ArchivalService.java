@@ -22,19 +22,21 @@ public class ArchivalService {
     private final ProjectRepository projectRepository;
 
     @Autowired
-    public ArchivalService(InvoiceRepo invoiceRepo, IssueRepo issueRepo, ProjectRepository projectRepository){
-        this.issueRepo=issueRepo;
-        this.invoiceRepo=invoiceRepo;
-        this.projectRepository=projectRepository;
+    public ArchivalService(InvoiceRepo invoiceRepo, IssueRepo issueRepo, ProjectRepository projectRepository) {
+        this.issueRepo = issueRepo;
+        this.invoiceRepo = invoiceRepo;
+        this.projectRepository = projectRepository;
     }
 
-    public Set<Invoice> collectArchivalInvoices(){
+    public Set<Invoice> collectArchivalInvoices() {
         return invoiceRepo.findAll().stream().filter(Invoice::isPaid).collect(toSet());
     }
-    public Set<Issue> collectArchivalIssues(){
-        return issueRepo.findAll().stream().filter(i->i.getStatus().equals(EIssue.FINISHED)).collect(toSet());
+
+    public Set<Issue> collectArchivalIssues() {
+        return issueRepo.findAll().stream().filter(i -> i.getStatus().equals(EIssue.FINISHED)).collect(toSet());
     }
-    public Set<Project> collectArchivalProjects(){
+
+    public Set<Project> collectArchivalProjects() {
         return projectRepository.findAll().stream().filter(Project::getEnded).collect(toSet());
     }
 

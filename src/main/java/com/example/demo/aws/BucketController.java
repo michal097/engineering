@@ -7,6 +7,7 @@ import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.InvoiceRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,7 +36,7 @@ public class BucketController {
     public void uploadFile(@RequestParam("file") MultipartFile file) {
         amazonClient.uploadFile(file);
         invoice = adminService.prepareReadedData(amazonClient.detectTextOnImg(amazonClient.generateFileName(file)));
-        invoice.setInvoiceURL("https://enigeeringbucket.s3.us-east-2.amazonaws.com/"+amazonClient.generateFileName(file));
+        invoice.setInvoiceURL("https://enigeeringbucket.s3.us-east-2.amazonaws.com/" + amazonClient.generateFileName(file));
         log.info("setting invoice url {}", invoice.getInvoiceURL());
         log.info("File with name {} has been uploaded", file.getName());
     }
@@ -50,12 +51,14 @@ public class BucketController {
         clientInvoiceService.checkClient(inv);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping("/deleteFile")
     public String deleteFile(@RequestPart(value = "url") String fileUrl) {
         return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
     }
+
     @GetMapping("inv")
-    public Invoice inv(){
+    public Invoice inv() {
         return invoice;
     }
 

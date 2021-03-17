@@ -12,5 +12,6 @@ import java.util.Optional;
 @Repository
 public interface ProjectRepository extends MongoRepository<Project, String> {
     Page<Project> findAll(Pageable pageable);
+
     Optional<Project> findProjectByProjectName(String name);
 }

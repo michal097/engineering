@@ -1,5 +1,6 @@
 package com.example.demo.security.controller;
 
+import com.example.demo.model.Client;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.security.config.JwtTokenUtil;
 import com.example.demo.security.model.JwtRequest;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -37,7 +39,7 @@ public class JwtAuthenticationController {
         this.authenticationManager = authenticationManager;
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;
-        this.clientRepository=clientRepository;
+        this.clientRepository = clientRepository;
     }
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -55,7 +57,7 @@ public class JwtAuthenticationController {
     }
 
     @GetMapping("userName")
-    public String userNameAndSurname(){
+    public String userNameAndSurname() {
         return userNameAndSurname;
     }
 
@@ -72,5 +74,18 @@ public class JwtAuthenticationController {
             throw new Exception("INVALID_CREDENTIALS", e);
         }
     }
+
+    @GetMapping("getActualUser")
+    public String actualuser() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
+    }
+
+    @GetMapping("getUsername")
+    public String username() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Client> isUserPresent = clientRepository.findAllByUsername(username);
+        return isUserPresent.map(Client::getClientId).orElse(null);
+    }
+
 
 }

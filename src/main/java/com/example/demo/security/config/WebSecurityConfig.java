@@ -51,27 +51,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
-    String[] permissions = {
-            "/authenticate",
-            "/createAndSaveUser",
-            "/test/**",
-            "/username",
-            "/admin/getAllEmployeesWithDepartments/**",
-            "/admin/getAllEmployeesWithDepartments/sortBy/departmentbudget/**",
-            "/countPages",
-            "/**"
-    };
-
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.csrf().disable()
-                .authorizeRequests().antMatchers(permissions).permitAll()
+                .authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/admin/**").hasAnyAuthority("ROLE_ADMIN")
-                .antMatchers("/user/**").hasAnyAuthority("ROLE_USER")
-                .anyRequest().authenticated()
-                .and().formLogin()
                 .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 

@@ -7,6 +7,7 @@ import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,9 +29,10 @@ public class SearchController {
     public SearchController(InvoiceRepoElastic invoiceRepoElastic, ClientRepoElastic clientRepository, ExtClientRepoElastic externalClientRepo) {
         this.invoiceRepoElastic = invoiceRepoElastic;
         this.clientRepository = clientRepository;
-        this.externalClientRepo=externalClientRepo;
+        this.externalClientRepo = externalClientRepo;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("searchInvoice/{phrase}")
     public Set<?> makeSearch(@PathVariable String phrase) {
         String[] phraseArr = phrase.split(" ");
@@ -41,6 +43,7 @@ public class SearchController {
         return searchResults;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("searchClients/{phrase}")
     public Set<Client> clients(@PathVariable String phrase) {
         String[] phraseArr = phrase.split(" ");
@@ -50,6 +53,8 @@ public class SearchController {
         }
         return cl;
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("searchExternal/{phrase}")
     public Set<ExternalClient> extClients(@PathVariable String phrase) {
         String[] phraseArr = phrase.split(" ");

@@ -27,7 +27,7 @@ public class EmployeeService {
         this.clientRepository = clientRepository;
         this.userRepository = userRepository;
         this.userCreateService = userCreateService;
-        this.externalClientRepo=externalClientRepo;
+        this.externalClientRepo = externalClientRepo;
     }
 
     public User createUser(User user) {
@@ -38,15 +38,15 @@ public class EmployeeService {
         } else throw new IllegalArgumentException("error during creating account username: " + user.getUsername());
     }
 
-    public List<ExternalClient> allExternals(){
+    public List<ExternalClient> allExternals() {
         return externalClientRepo.findAll();
     }
 
-    public ExternalClient getExternalClient(String id){
+    public ExternalClient getExternalClient(String id) {
         return externalClientRepo.findById(id).orElse(null);
     }
 
-    public Set<Invoice> getExternalClientInvoices(String id){
+    public Set<Invoice> getExternalClientInvoices(String id) {
         return getExternalClient(id).getExternalClientInvoices();
     }
 }

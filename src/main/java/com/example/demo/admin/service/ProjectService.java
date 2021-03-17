@@ -1,6 +1,5 @@
 package com.example.demo.admin.service;
 
-import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -27,13 +25,11 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ClientRepository clientRepository;
-    private final ClientRepoElastic clientRepoElastic;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository, ClientRepoElastic clientRepoElastic) {
+    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository) {
         this.projectRepository = projectRepository;
         this.clientRepository = clientRepository;
-        this.clientRepoElastic = clientRepoElastic;
     }
 
     private Set<Client> addProjectAndAssignPeople(Project project) {
@@ -66,6 +62,9 @@ public class ProjectService {
     }
 
     public Project addProject(Project project) {
+        boolean alreadyTaken = projectRepository.findProjectByProjectName(project.getProjectName()).isPresent();
+        if (alreadyTaken) throw new IllegalArgumentException();
+        project.setProjectName(project.getProjectName().trim());
         project.setEmployeesOnProject(this.addProjectAndAssignPeople(project));
         project.setEnded(false);
         return projectRepository.save(project);
@@ -88,24 +87,25 @@ public class ProjectService {
     }
 
     public Project getProjectById(String projectName) throws Exception {
-        return projectRepository.findAll().stream().filter(p -> p.getProjectName().equals(projectName)).findFirst().orElseThrow(Exception::new);
+        var pName = projectName.replaceAll("-", " ").trim();
+        return projectRepository.findAll().stream().filter(p -> p.getProjectName().equals(pName)).findFirst().orElseThrow(Exception::new);
     }
 
     private void changeBusyOnClient(Project p) {
 
-        p.getEmployeesOnProject().forEach(c-> {
+        p.getEmployeesOnProject().forEach(c -> {
             c.setIsBusy(false);
             clientRepository.save(c);
         });
     }
 
-    public List<Client> findClientsToProject(String projectName){
+    public List<Client> findClientsToProject(String projectName) {
         var project = projectRepository.findProjectByProjectName(projectName);
-        var technologies = project.isPresent() ? project.get().getTechnologies(): new HashSet();
+        var technologies = project.isPresent() ? project.get().getTechnologies() : new HashSet();
         var calculatePeopleOnProj = project.get().getPeopleNeeded() - project.get().getEmployeesOnProject().size();
         return clientRepository.findAll()
                 .stream()
-                .filter(c->c.getIsBusy() != null ? !c.getIsBusy() : c.setIsBusyInFilter())
+                .filter(c -> c.getIsBusy() != null ? !c.getIsBusy() : c.setIsBusyInFilter())
                 .filter(c -> c.getSkills().containsAll(technologies))
                 .limit(calculatePeopleOnProj)
                 .collect(toList());
@@ -124,9 +124,9 @@ public class ProjectService {
         return null;
     }
 
-    public Client addEmployeeToSpecProject(String clientId, Project project){
+    public Client addEmployeeToSpecProject(String clientId, Project project) {
         var client = clientRepository.findById(clientId);
-        client.ifPresent(c-> {
+        client.ifPresent(c -> {
             c.addProject(project);
             c.setIsBusy(true);
         });
@@ -134,8 +134,8 @@ public class ProjectService {
         return client.map(clientRepository::save).orElse(null);
     }
 
-    public void updateProject(Project project, Client client){
-        projectRepository.findProjectByProjectName(project.getProjectName()).map(p-> {
+    public void updateProject(Project project, Client client) {
+        projectRepository.findProjectByProjectName(project.getProjectName()).map(p -> {
             p.getEmployeesOnProject().add(client);
             return projectRepository.save(p);
         });

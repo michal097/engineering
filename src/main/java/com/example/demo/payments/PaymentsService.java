@@ -15,20 +15,20 @@ public class PaymentsService {
     private final InvoiceRepo invoiceRepo;
 
     @Autowired
-    public PaymentsService(InvoiceRepo invoiceRepo){
-        this.invoiceRepo=invoiceRepo;
+    public PaymentsService(InvoiceRepo invoiceRepo) {
+        this.invoiceRepo = invoiceRepo;
     }
 
-    public List<Invoice> listAllInvoices(){
-        return invoiceRepo.findAll().stream().filter(i->!i.isPaid()).collect(Collectors.toList());
+    public List<Invoice> listAllInvoices() {
+        return invoiceRepo.findAll().stream().filter(i -> !i.isPaid()).collect(Collectors.toList());
     }
 
-    public Invoice getInvoice(String id){
+    public Invoice getInvoice(String id) {
         return invoiceRepo.findById(id).orElse(null);
     }
 
-    public Invoice changePaymentStatus(Invoice invoice){
-        invoiceRepo.findById(invoice.getInvoiceId()).map(i->{
+    public Invoice changePaymentStatus(Invoice invoice) {
+        invoiceRepo.findById(invoice.getInvoiceId()).map(i -> {
             i.setPaid(true);
             return invoiceRepo.save(i);
         });

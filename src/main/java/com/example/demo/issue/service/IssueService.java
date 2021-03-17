@@ -24,54 +24,55 @@ public class IssueService {
     private final MailService mailService;
 
     @Autowired
-    public IssueService(IssueRepo issueRepo, ClientRepository clientRepository, MailService mailService){
-        this.issueRepo=issueRepo;
-        this.clientRepository=clientRepository;
+    public IssueService(IssueRepo issueRepo, ClientRepository clientRepository, MailService mailService) {
+        this.issueRepo = issueRepo;
+        this.clientRepository = clientRepository;
         this.mailService = mailService;
 
     }
 
-    public Issue addNewIssue(Issue issue){
+    public Issue addNewIssue(Issue issue) {
         String reporter = SecurityContextHolder.getContext().getAuthentication().getName();
         var client = clientRepository.findAllByUsername(reporter);
         client.ifPresent(issue::setReporter);
         issue.setStatus(EIssue.ASSIGNED);
         issue.setAssignDate(LocalDate.now());
 
-        var findModerator = clientRepository.findAll().stream().filter(m->m.getUserType()!=null && m.getUserType().equals(Role.ROLE_MODERATOR)).findAny();
+        var findModerator = clientRepository.findAll().stream().filter(m -> m.getUserType() != null && m.getUserType().equals(Role.ROLE_MODERATOR)).findAny();
 
-        findModerator.ifPresent(moder -> mailService.sendSimpleMail(moder.getEmail(),"Received new issue: " + issue.getIssueTitle(),issue.getIssueDetails()));
+        findModerator.ifPresent(moder -> mailService.sendSimpleMail(moder.getEmail(), "Received new issue: " + issue.getIssueTitle(), issue.getIssueDetails()));
 
         return issueRepo.save(issue);
     }
 
-    public List<Issue> listAllIssues(){
+    public List<Issue> listAllIssues() {
         String reporter = SecurityContextHolder.getContext().getAuthentication().getName();
         var getUser = clientRepository.findAllByUsername(reporter);
         var isUser = false;
-        if(getUser.isPresent()){
+        if (getUser.isPresent()) {
             isUser = getUser.get().getUserType().equals(Role.ROLE_USER);
-            if(isUser){
+            if (isUser) {
                 return issueRepo.findAll().stream().filter(rep -> rep.getReporter().equals(getUser.get())).collect(Collectors.toList());
             }
         }
 
-        return issueRepo.findAll().stream().filter(issue -> issue.getStatus().equals(EIssue.FINISHED)).collect(Collectors.toList());
+        return issueRepo.findAll().stream().filter(issue -> !issue.getStatus().equals(EIssue.FINISHED)).collect(Collectors.toList());
     }
-    public Issue getIssue(String issueId) throws Exception{
+
+    public Issue getIssue(String issueId) throws Exception {
         return issueRepo.findById(issueId).orElseThrow(Exception::new);
     }
 
-    public Issue makeWorkInProgress(Issue issue){
+    public Issue makeWorkInProgress(Issue issue) {
         return issueRepo.findById(issue.getIssueId()).map(i -> {
-           i.setStatus(EIssue.WORK_IN_PROGRESS);
+            i.setStatus(EIssue.WORK_IN_PROGRESS);
             issue.setWorkInProgressDate(LocalDate.now());
-           return issueRepo.save(i);
+            return issueRepo.save(i);
         }).orElse(null);
     }
 
-    public Issue saveIssueSolution(Issue issue){
-        return issueRepo.findById(issue.getIssueId()).map(i ->{
+    public Issue saveIssueSolution(Issue issue) {
+        return issueRepo.findById(issue.getIssueId()).map(i -> {
             i.setSolution(issue.getSolution());
             i.setStatus(EIssue.FINISHED);
             issue.setFinishedDate(LocalDate.now());
@@ -80,7 +81,7 @@ public class IssueService {
             mailService.sendSimpleMail(issueOwnerEmail,
                     issue.getIssueTitle() + " has been solved",
                     issue.getIssueDetails() +
-                            '\n' + "solution: " +issue.getSolution());
+                            '\n' + "solution: " + issue.getSolution());
 
             return issueRepo.save(i);
         }).orElse(null);

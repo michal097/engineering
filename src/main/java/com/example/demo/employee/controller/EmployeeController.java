@@ -11,6 +11,7 @@ import com.example.demo.mongoRepo.ProjectRepository;
 import com.example.demo.security.model.User;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,7 @@ public class EmployeeController {
     private final ClientRepoElastic clientRepoElastic;
     private final InvoiceRepo invoiceRepo;
     private final ProjectRepository projectRepository;
+
     @Autowired
     public EmployeeController(EmployeeService employeeService,
                               ClientRepository clientRepository,
@@ -37,9 +39,10 @@ public class EmployeeController {
         this.employeeService = employeeService;
         this.clientRepository = clientRepository;
         this.clientRepoElastic = clientRepoElastic;
-        this.invoiceRepo=invoiceRepo;
-        this.projectRepository=projectRepository;
+        this.invoiceRepo = invoiceRepo;
+        this.projectRepository = projectRepository;
     }
+
 
     @PostMapping("createAndSaveUser")
     public User createAndSaveUser(@RequestBody User user) {
@@ -52,6 +55,7 @@ public class EmployeeController {
         return clientRepository.findById(id).orElseThrow(Exception::new);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping("deleteEmployee/{id}")
     public Object deleteEmployee(@PathVariable String id) {
         var client = clientRepository.findById(id);
@@ -66,6 +70,7 @@ public class EmployeeController {
 
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PutMapping("updateEmployee/{id}")
     public Client updateClient(@RequestBody Client client, @PathVariable String id) {
         return clientRepository.findById(id)
@@ -89,34 +94,38 @@ public class EmployeeController {
     }
 
     @GetMapping("clientInvoices/{id}")
-    public Set<Invoice> clientInvoices(@PathVariable String id){
+    public Set<Invoice> clientInvoices(@PathVariable String id) {
         return clientRepository.findById(id)
                 .stream()
-                .flatMap(client -> client.getClientInvoices() !=null ? client.getClientInvoices().stream() : Stream.of()).collect(toSet());
+                .flatMap(client -> client.getClientInvoices() != null ? client.getClientInvoices().stream() : Stream.of()).collect(toSet());
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("findInvoiceByNumber/{invoiceNumber}")
-    public String findInvoiceUrl(@PathVariable String invoiceNumber){
+    public String findInvoiceUrl(@PathVariable String invoiceNumber) {
 
         final String[] invURL = {""};
-        invoiceRepo.findByFvNumber(invoiceNumber.replaceAll("_","/")).ifPresent(c-> invURL[0] = (c.getInvoiceURL()));
+        invoiceRepo.findByFvNumber(invoiceNumber.replaceAll("_", "/")).ifPresent(c -> invURL[0] = (c.getInvoiceURL()));
         return invURL[0];
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("allExternals")
-    public List<ExternalClient> allExternals(){
+    public List<ExternalClient> allExternals() {
         return employeeService.allExternals();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getExternal/{id}")
-    public ExternalClient getExternal(@PathVariable String id){
+    public ExternalClient getExternal(@PathVariable String id) {
         return employeeService.getExternalClient(id);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getExternalClientInvoices/{id}")
-    public Set<Invoice> externalInvoices(@PathVariable String id){
+    public Set<Invoice> externalInvoices(@PathVariable String id) {
         return employeeService.getExternalClientInvoices(id);
     }
-
 
 
 }

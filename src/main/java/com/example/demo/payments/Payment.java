@@ -10,7 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Data
 public class Payment {
-    private @Id String paymentId;
+    private @Id
+    String paymentId;
     private Double amount;
     private Client client;
     private Invoice referencedInvoice;

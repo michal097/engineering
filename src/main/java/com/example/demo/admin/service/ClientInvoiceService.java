@@ -47,11 +47,11 @@ public class ClientInvoiceService {
             clientRepository.save(client);
         } else if (externalClient.isPresent()) {
             var extClient = externalClient.get();
-            if(extClient.getExternalClientInvoices() == null){
+            if (extClient.getExternalClientInvoices() == null) {
                 Set<Invoice> inv = new HashSet<>();
                 inv.add(invoice);
                 extClient.setExternalClientInvoices(inv);
-            }else {
+            } else {
                 extClient.getExternalClientInvoices().add(invoice);
             }
             externalClientRepo.save(extClient);

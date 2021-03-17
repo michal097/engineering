@@ -21,7 +21,7 @@ public class StripeClient {
         Stripe.apiKey = "sk_test_51IUFgHCsIvvwemtrBLaNzXPzMVyz3itfov0CPaq99397ZuyQ615bO4OhW9FMCvxhr3uQ58PJTIAqKMMDu8gr43nr00klI3Inj6";
     }
 
-    public static Account createAccount() throws Exception{
+    public static Account createAccount() throws Exception {
         Map<String, Object> cardPayments =
                 new HashMap<>();
         cardPayments.put("requested", true);
@@ -39,6 +39,7 @@ public class StripeClient {
 
         return Account.create(params);
     }
+
     public static Token bankAccToket() throws StripeException {
         Map<String, Object> bankAccount = new HashMap<>();
         bankAccount.put("country", "US");
@@ -59,7 +60,7 @@ public class StripeClient {
         return Token.create(params);
     }
 
-    public static BankAccount createBankAccount() throws Exception{
+    public static BankAccount createBankAccount() throws Exception {
         Account account =
                 Account.retrieve(createAccount().getId());
 
@@ -67,7 +68,7 @@ public class StripeClient {
         params.put(
                 "external_account",
                 bankAccToket().getId()
-                );
+        );
 
         return
                 (BankAccount) account
@@ -103,7 +104,7 @@ public class StripeClient {
 
         Customer.create(params, requestOptions);
 
-     return Account.retrieve(createBankAccToken().getId());
+        return Account.retrieve(createBankAccToken().getId());
     }
 
 
@@ -112,12 +113,13 @@ public class StripeClient {
         Map<String, Object> params = new HashMap<>();
         params.put("amount", 11);
         params.put("currency", "USD");
-        params.put("destination", retrieveAcc().getId() );
-        params.put("source_type","bank_account");
+        params.put("destination", retrieveAcc().getId());
+        params.put("source_type", "bank_account");
 
         return Payout.create(params);
 
     }
+
     private static Source createSource(String IBAN) throws StripeException {
         SourceCreateParams params =
                 SourceCreateParams.builder()
@@ -133,7 +135,7 @@ public class StripeClient {
         return Source.create(params);
     }
 
-    private static Customer createCustomer(String IBAN) throws Exception{
+    private static Customer createCustomer(String IBAN) throws Exception {
         CustomerCreateParams params =
                 CustomerCreateParams.builder()
                         .setEmail("paying.user@example.com")
@@ -143,7 +145,7 @@ public class StripeClient {
         return Customer.create(params);
     }
 
-    public Charge makeChargeRequest(String IBAN, Long amount) throws Exception{
+    public Charge makeChargeRequest(String IBAN, Long amount) throws Exception {
         System.out.println(createCustomer(IBAN));
         ChargeCreateParams params =
                 ChargeCreateParams.builder()
@@ -155,7 +157,7 @@ public class StripeClient {
                         .setSource(createSource(IBAN).getId())
                         .build();
 
-        return  Charge.create(params);
+        return Charge.create(params);
     }
 
 }

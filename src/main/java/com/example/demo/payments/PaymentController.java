@@ -2,6 +2,7 @@ package com.example.demo.payments;
 
 import com.example.demo.model.Invoice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,27 +17,32 @@ public class PaymentController {
 
     @Autowired
     PaymentController(StripeClient stripeClient, PaymentsService paymentsService) {
-        this.paymentsService=paymentsService;
+        this.paymentsService = paymentsService;
         this.stripeClient = stripeClient;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("/charge/{IBAN}/{amount}")
     public String chargeCard(@PathVariable String IBAN, @PathVariable Long amount) throws Exception {
         return stripeClient.makePayout().toJson();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getAllIvoices")
-    public List<Invoice> allInvoices(){
+    public List<Invoice> allInvoices() {
         return paymentsService.listAllInvoices();
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getSpecInvoiceById/{id}")
-    public Invoice getinvoiceById(@PathVariable String id){
+    public Invoice getinvoiceById(@PathVariable String id) {
         System.out.println(paymentsService.getInvoice(id));
         return paymentsService.getInvoice(id);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PostMapping("makePayment")
-    public Invoice makePayment(@RequestBody Invoice invoice){
+    public Invoice makePayment(@RequestBody Invoice invoice) {
         return paymentsService.changePaymentStatus(invoice);
     }
 }

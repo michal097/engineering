@@ -13,7 +13,8 @@ import java.util.Set;
 @Data
 @Builder
 public class Project {
-    @Id String projectId;
+    @Id
+    String projectId;
 
     private String projectName;
     private LocalDate startDate;

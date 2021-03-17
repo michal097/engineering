@@ -11,7 +11,8 @@ import java.time.LocalDate;
 @Builder
 @Data
 public class Issue {
-    @Id String issueId;
+    @Id
+    String issueId;
 
     private String issueTitle;
     private String issueDetails;

@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,7 @@ public class AdminController {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("createUser")
     public Client createClient(@RequestBody Client client) {
 
@@ -59,51 +61,63 @@ public class AdminController {
 
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("/addProj")
     public Project addProjectRes(@RequestBody Project project) {
         return projectService.addProject(project);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("listAllEmployees/{page}/{size}")
     public List<Client> listAllEmployees(@PathVariable int page, @PathVariable int size) {
         return clientRepository.findAll(PageRequest.of(page, size, Sort.Direction.ASC, "name", "surname")).getContent();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("allEmpLength")
     public Integer empLen() {
         return clientRepository.findAll().size();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("employeeProjects/{id}")
     public Set<Object> employeeProjects(@PathVariable String id) {
         return projectService.findProjectsByEmployee(id);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("listProjects/{page}/{size}")
     public List<Project> projects(@PathVariable int page, @PathVariable int size) {
         return projectService.projectsList(page, size);
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("listProjectsLength")
-    public Long listProjectsLenght(){
+    public Long listProjectsLenght() {
         return projectService.projectsLength();
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("project/{id}")
-    public Project getProject(@PathVariable String id) throws Exception{
+    public Project getProject(@PathVariable String id) throws Exception {
         return projectService.getProjectById(id);
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("endOfProject/{projectName}")
-    public Project setEndOfProject(@PathVariable String projectName){
+    public Project setEndOfProject(@PathVariable String projectName) {
         return projectService.endProject(projectName);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getEmployeesToProject/{projectName}")
-    public List<Client> clientsToProject(@PathVariable String projectName){
+    public List<Client> clientsToProject(@PathVariable String projectName) {
         return projectService.findClientsToProject(projectName);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("addEmpToSpecProj/{clientId}")
-    public Client addClientToProject(@PathVariable String clientId, @RequestBody Project project){
+    public Client addClientToProject(@PathVariable String clientId, @RequestBody Project project) {
         return projectService.addEmployeeToSpecProject(clientId, project);
     }
 }
