@@ -110,9 +110,13 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
-    @GetMapping("allExternals")
-    public List<ExternalClient> allExternals() {
-        return employeeService.allExternals();
+    @GetMapping("allExternals/{page}/{size}")
+    public List<ExternalClient> allExternals(@PathVariable int page, @PathVariable int size) {
+        return employeeService.allExternals(page, size);
+    }
+    @GetMapping("externalSize")
+    public long getExternalListSize(){
+        return employeeService.getAllExternals();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")

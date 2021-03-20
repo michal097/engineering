@@ -1,6 +1,7 @@
 package com.example.demo.elasticRepo;
 
 import com.example.demo.model.Invoice;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
@@ -10,5 +11,5 @@ public interface InvoiceRepoElastic extends ElasticsearchRepository<Invoice, Str
     List<Invoice> findAll();
 
     @Query("{\"multi_match\": {\"query\": \"?0\", \"fields\": [\"invName\",\"invSurname\"], \"fuzziness\": 10,\"prefix_length\": 1}}")
-    List<Invoice> findNIPWithFuzziness(String phrase);
+    List<Invoice> findNIPWithFuzziness(String phrase, Pageable pageable);
 }

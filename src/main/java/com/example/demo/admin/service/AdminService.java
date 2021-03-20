@@ -25,13 +25,20 @@ public class AdminService {
         this.clientRepository = clientRepository;
     }
 
+    public boolean searchExistingUsername(String username){
+        return clientRepository.findAllByUsername(username).isPresent();
+    }
     public String makeUserName(String name, String surname) {
-        String username = deleteSpecialChars(name).substring(0, 1).concat(deleteSpecialChars(surname).substring(1)).toLowerCase();
-            Optional<Client> cl = clientRepository.findAllByUsername(username);
-            if (cl.isPresent()) {
-                username = deleteSpecialChars(surname).substring(0, 1).concat(deleteSpecialChars(name).substring(1)).toLowerCase();
-            }
-        return username;
+        StringBuilder username = new StringBuilder(deleteSpecialChars(name).substring(0, 1).concat(deleteSpecialChars(surname).substring(1)).toLowerCase());
+        boolean isPres = searchExistingUsername(username.toString());
+        int i = 0;
+        while(isPres){
+            username.append(i);
+            i++;
+            isPres = searchExistingUsername(username.toString());
+        }
+
+        return username.toString();
     }
 
     public Invoice prepareReadedData(List<String> list) {

@@ -72,11 +72,11 @@ public class ProjectService {
     }
 
     public List<Project> projectsList(int page, int size) {
-        return projectRepository.findAll(PageRequest.of(page, size)).getContent().stream().filter(p -> p.getEnded() != null && !p.getEnded()).collect(toList());
+        return projectRepository.findAll(PageRequest.of(page, size)).getContent().stream().filter(p -> !p.getEnded()).collect(toList());
     }
 
     public long projectsLength() {
-        return projectRepository.findAll().stream().filter(p -> p.getDeadLineDate() == null).count();
+        return projectRepository.findAll().stream().filter(p -> !p.getEnded()).count();
     }
 
     public Set<Object> findProjectsByEmployee(String clientId) {

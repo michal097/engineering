@@ -8,6 +8,10 @@ import com.example.demo.mongoRepo.IssueRepo;
 import com.example.demo.security.model.Role;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +49,7 @@ public class IssueService {
         return issueRepo.save(issue);
     }
 
-    public List<Issue> listAllIssues() {
+    public List<Issue> listAllIssues(int page, int size) {
         String reporter = SecurityContextHolder.getContext().getAuthentication().getName();
         var getUser = clientRepository.findAllByUsername(reporter);
         var isUser = false;
@@ -55,8 +59,12 @@ public class IssueService {
                 return issueRepo.findAll().stream().filter(rep -> rep.getReporter().equals(getUser.get())).collect(Collectors.toList());
             }
         }
+        var iss = issueRepo.findAll().stream().filter(issue -> !issue.getStatus().equals(EIssue.FINISHED)).collect(Collectors.toList());
 
-        return issueRepo.findAll().stream().filter(issue -> !issue.getStatus().equals(EIssue.FINISHED)).collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Issue> p = new PageImpl<>(iss, pageable, iss.size());
+
+        return p.getContent();
     }
 
     public Issue getIssue(String issueId) throws Exception {
@@ -85,5 +93,9 @@ public class IssueService {
 
             return issueRepo.save(i);
         }).orElse(null);
+    }
+
+    public long countNotEndedIssues(){
+       return issueRepo.findAll().stream().filter(i->!i.getStatus().equals(EIssue.FINISHED)).count();
     }
 }

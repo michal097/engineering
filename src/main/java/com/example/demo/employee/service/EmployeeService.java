@@ -4,11 +4,14 @@ import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.ExternalClientRepo;
+import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
 import com.example.demo.security.repository.UserRepository;
 import com.example.demo.security.service.UserCreateService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,20 +35,26 @@ public class EmployeeService {
 
     public User createUser(User user) {
         var clientIsPresentInRepo = clientRepository.findByUsername(user.getUsername());
-        var usernameIsAlreadyTaken = !userRepository.findUserByUsername(user.getUsername()).isPresent();
-        if (clientIsPresentInRepo.isPresent() && usernameIsAlreadyTaken) {
-            return userCreateService.addWithDefaultRole(user, clientIsPresentInRepo.get().getUserType());
+        var usernameIsNotAlreadyTaken = !userRepository.findUserByUsername(user.getUsername()).isPresent();
+        if (clientIsPresentInRepo.isPresent() && usernameIsNotAlreadyTaken) {
+            var userT = clientIsPresentInRepo.get().getUserType();
+            if (userT == null) {
+                userT = Role.ROLE_USER;
+            }
+            return userCreateService.addWithDefaultRole(user, userT);
         } else throw new IllegalArgumentException("error during creating account username: " + user.getUsername());
     }
 
-    public List<ExternalClient> allExternals() {
-        return externalClientRepo.findAll();
+    public List<ExternalClient> allExternals(int page, int size) {
+        return externalClientRepo.findAll(PageRequest.of(page,size)).getContent();
     }
 
     public ExternalClient getExternalClient(String id) {
         return externalClientRepo.findById(id).orElse(null);
     }
-
+    public long getAllExternals(){
+        return externalClientRepo.findAll().size();
+    }
     public Set<Invoice> getExternalClientInvoices(String id) {
         return getExternalClient(id).getExternalClientInvoices();
     }

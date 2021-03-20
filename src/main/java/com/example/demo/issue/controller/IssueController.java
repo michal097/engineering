@@ -26,10 +26,10 @@ public class IssueController {
         return issueService.addNewIssue(issue);
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_MODERATOR')")
-    @GetMapping("allIssues")
-    public List<Issue> allIssues() {
-        return issueService.listAllIssues();
+    @PreAuthorize("hasAnyRole('ROLE_MODERATOR','ROLE_USER')")
+    @GetMapping("allIssues/{page}/{size}")
+    public List<Issue> allIssues(@PathVariable int page, @PathVariable int size) {
+        return issueService.listAllIssues(page, size);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MODERATOR')")
@@ -49,5 +49,10 @@ public class IssueController {
     @PostMapping("saveIssueSolution")
     public Issue saveIssueSolution(@RequestBody Issue issue) {
         return issueService.saveIssueSolution(issue);
+    }
+
+    @GetMapping("issuesLen")
+    public long notEndedIssues(){
+        return issueService.countNotEndedIssues();
     }
 }

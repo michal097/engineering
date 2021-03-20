@@ -1,15 +1,17 @@
 package com.example.demo.archivalData.controller;
 
 import com.example.demo.archivalData.service.ArchivalService;
+import com.example.demo.model.EIssue;
 import com.example.demo.model.Invoice;
 import com.example.demo.model.Issue;
 import com.example.demo.model.Project;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -21,25 +23,40 @@ public class ArchivalDataController {
         this.archivalService = archivalService;
     }
 
-    @GetMapping("archivalInvoices")
+    @GetMapping("archivalInvoices/{page}/{size}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
 
-    public Set<Invoice> getArchInvoices() {
-        return archivalService.collectArchivalInvoices();
+    public List<Invoice> getArchInvoices(@PathVariable int page, @PathVariable int size) {
+        return archivalService.collectArchivalInvoices(page, size);
     }
 
 
-    @GetMapping("archivalIssue")
+    @GetMapping("archivalIssue/{page}/{size}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
 
-    public Set<Issue> getArchIssues() {
-        return archivalService.collectArchivalIssues();
+    public List<Issue> getArchIssues(@PathVariable int page, @PathVariable int size) {
+        return archivalService.collectArchivalIssues(page, size);
     }
 
-    @GetMapping("archivalProjects")
+    @GetMapping("archivalProjects/{page}/{size}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
 
-    public Set<Project> getArchProjects() {
-        return archivalService.collectArchivalProjects();
+    public List<Project> getArchProjects(@PathVariable int page, @PathVariable int size) {
+        return archivalService.collectArchivalProjects(page, size);
     }
+
+    @GetMapping("getInvoiceSize")
+    public long getInvoiceSize(){
+        return archivalService.getInvoiceSize();
+    }
+    @GetMapping("getIssuesSize")
+    public long getIssuesSize(){
+        return archivalService.getIssuesSize();
+    }
+    @GetMapping("getProjectSize")
+    public long getProjectSize(){
+        return archivalService.getProjectSize();
+    }
+
+
 }
