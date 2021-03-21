@@ -12,20 +12,15 @@ import java.util.List;
 @CrossOrigin
 public class PaymentController {
 
-    private final StripeClient stripeClient;
     private final PaymentsService paymentsService;
 
     @Autowired
-    PaymentController(StripeClient stripeClient, PaymentsService paymentsService) {
+    PaymentController(PaymentsService paymentsService) {
         this.paymentsService = paymentsService;
-        this.stripeClient = stripeClient;
+
     }
 
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @GetMapping("/charge/{IBAN}/{amount}")
-    public String chargeCard(@PathVariable String IBAN, @PathVariable Long amount) throws Exception {
-        return stripeClient.makePayout().toJson();
-    }
+
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getAllIvoices/{page}/{size}")
