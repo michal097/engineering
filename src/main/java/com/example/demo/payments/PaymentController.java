@@ -13,14 +13,28 @@ import java.util.List;
 public class PaymentController {
 
     private final PaymentsService paymentsService;
-
+    private final WiseTransfer wiseTransfer;
     @Autowired
-    PaymentController(PaymentsService paymentsService) {
+    PaymentController(PaymentsService paymentsService, WiseTransfer wiseTransfer) {
         this.paymentsService = paymentsService;
+        this.wiseTransfer=wiseTransfer;
 
     }
 
-
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("pay/{amount}/{name}/{iban}/{invoiceId}")
+        public Invoice str(@PathVariable double amount, @PathVariable String name, @PathVariable String iban, @PathVariable String invoiceId){
+        String targetCurr;
+        if(iban.startsWith("PL")){
+            targetCurr = "PLN";
+        }else targetCurr = "EUR";
+        System.out.println("imma in payments ");
+        if( wiseTransfer.fundTransfer(amount, targetCurr, name, iban) .equals("COMPLETED")){
+            System.out.println("completed");
+            System.out.println(invoiceId);
+            return paymentsService.changePaymentStatus(invoiceId);
+        }else throw new IllegalArgumentException();
+    }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getAllIvoices/{page}/{size}")
@@ -33,12 +47,6 @@ public class PaymentController {
     public Invoice getinvoiceById(@PathVariable String id) {
         System.out.println(paymentsService.getInvoice(id));
         return paymentsService.getInvoice(id);
-    }
-
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
-    @PostMapping("makePayment")
-    public Invoice makePayment(@RequestBody Invoice invoice) {
-        return paymentsService.changePaymentStatus(invoice);
     }
 
     @GetMapping("getInvoicesToPaySize")

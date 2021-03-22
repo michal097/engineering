@@ -12,4 +12,6 @@ public interface ExtClientRepoElastic extends ElasticsearchRepository<ExternalCl
 
     @Query("{\"multi_match\": {\"query\": \"?0\", \"fields\": [\"name\",\"surname\"], \"fuzziness\": 10,\"prefix_length\": 1}}")
     List<ExternalClient> findExternalClientsBySearchPhrase(String phrase, Pageable pageable);
+
+    List<ExternalClient> findAll();
 }

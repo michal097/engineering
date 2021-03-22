@@ -3,6 +3,8 @@ package com.example.demo.admin.controller;
 import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.elasticRepo.ExtClientRepoElastic;
 import com.example.demo.elasticRepo.InvoiceRepoElastic;
+import com.example.demo.model.Client;
+import com.example.demo.model.ExternalClient;
 import com.example.demo.mongoRepo.*;
 import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
@@ -47,6 +49,13 @@ public class InitController {
     @Autowired
     private ClientRepoElastic clientRepoElastic;
 
+
+
+
+    @GetMapping("cl")
+    public List<ExternalClient> clientRepoElastics(){
+        return extClientRepoElastic.findAll();
+    }
 
     @GetMapping("delEverything")
     public String kaboom() {

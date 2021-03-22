@@ -10,6 +10,7 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -61,6 +62,7 @@ public class ClientInvoiceService {
                     .surname(invoice.getInvSurname())
                     .nip(invoice.getNIP())
                     .bankAccNumber(invoice.getBankAccNumber())
+                    .externalClientInvoices(Set.of(invoice))
                     .build();
             externalClientRepo.save(newExternalClient);
         }

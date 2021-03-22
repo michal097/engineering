@@ -10,7 +10,6 @@ import com.example.demo.security.repository.UserRepository;
 import com.example.demo.security.service.UserCreateService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +18,7 @@ import java.util.Set;
 
 @Service
 public class EmployeeService {
+
 
     private final ClientRepository clientRepository;
     private final UserRepository userRepository;
@@ -55,6 +55,12 @@ public class EmployeeService {
     public long getAllExternals(){
         return externalClientRepo.findAll().size();
     }
+
+    public long countAllExternalClients(){
+        System.out.println(externalClientRepo.findAll().size());
+        return externalClientRepo.findAll().size();
+    }
+
     public Set<Invoice> getExternalClientInvoices(String id) {
         return getExternalClient(id).getExternalClientInvoices();
     }

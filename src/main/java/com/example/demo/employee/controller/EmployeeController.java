@@ -50,7 +50,7 @@ public class EmployeeController {
 
     }
 
-    @GetMapping("getEmployee/{id}")
+    @GetMapping("getEmployeeById/{id}")
     public Client getClient(@PathVariable String id) throws Exception {
         return clientRepository.findById(id).orElseThrow(Exception::new);
     }
@@ -59,12 +59,17 @@ public class EmployeeController {
     @DeleteMapping("deleteEmployee/{id}")
     public Object deleteEmployee(@PathVariable String id) {
         var client = clientRepository.findById(id);
-
+            if(client.isPresent() && client.get().getProjects() == null){
+                clientRepository.deleteById(id);
+                clientRepoElastic.deleteById(id);
+                return "deleted";
+            } else
         return client.map(value -> projectRepository.findAll().stream().filter(p -> p.getEmployeesOnProject().contains(value))
                 .map(cOnPro -> {
                     cOnPro.getEmployeesOnProject().remove(value);
                     clientRepository.deleteById(id);
                     clientRepoElastic.deleteById(id);
+                    System.out.println("usuwam w hui");
                     return projectRepository.save(cOnPro);
                 })).orElse(null);
 
@@ -131,5 +136,9 @@ public class EmployeeController {
         return employeeService.getExternalClientInvoices(id);
     }
 
+    @GetMapping("countAllExternalClients")
+    public long getAllExternalUsersCount(){
+        return employeeService.countAllExternalClients();
+    }
 
 }

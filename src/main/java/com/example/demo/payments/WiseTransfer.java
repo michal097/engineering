@@ -15,12 +15,7 @@ import java.util.UUID;
 @Service
 public class WiseTransfer {
 
-    final static String TOKEN = "2bf4b3fd-1714-4a92-a757-1ba692c50ac2";
-    final static String profiles = "https://api.sandbox.transferwise.tech/v1/profiles";
-    final static String quotes = "https://api.sandbox.transferwise.tech/v2/quotes";
-    final static String accounts = "https://api.sandbox.transferwise.tech/v1/accounts";
-    final static String transfers = "https://api.sandbox.transferwise.tech/v1/transfers";
-    final static String fund = "https://api.sandbox.transferwise.tech/v3/profiles/{profileId}/transfers/{transferId}/payments";
+    private final String TOKEN = "2bf4b3fd-1714-4a92-a757-1ba692c50ac2";
 
     private static RestTemplate restTemplate = new RestTemplate();
     private static final HttpHeaders headers = new HttpHeaders();
@@ -30,11 +25,12 @@ public class WiseTransfer {
         restTemplate = restTemplateBuilder.build();
     }
 
-    private static String getProfileId() {
+    private String getProfileId() {
 
         headers.set("Authorization", "Bearer " + TOKEN);
 
         HttpEntity<Object> request = new HttpEntity<>(headers);
+        String profiles = "https://api.sandbox.transferwise.tech/v1/profiles";
         ResponseEntity<Object> response = restTemplate.exchange(profiles, HttpMethod.GET, request, Object.class);
 
         String resp = Objects.requireNonNull(checkHttpStatus(response)).toString();
@@ -50,68 +46,70 @@ public class WiseTransfer {
         return null;
     }
 
-    private static String createQuote() {
+    private String createQuote(double amount, String targetCurr) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + TOKEN);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("sourceCurrency", "GBP");
-        map.put("targetCurrency", "GBP");
-        map.put("sourceAmount", 100);
+        map.put("sourceCurrency", "EUR");
+        map.put("targetCurrency", targetCurr);
+        map.put("sourceAmount", amount);
         map.put("targetAmount", null);
-        map.put("profile", getProfileId());
+        map.put("profile", this.getProfileId());
 
         HttpEntity<Object> entity = new HttpEntity<>(map, headers);
 
+        String quotes = "https://api.sandbox.transferwise.tech/v2/quotes";
         ResponseEntity<Object> response = restTemplate.postForEntity(quotes, entity, Object.class);
 
         return getId(response);
     }
 
-    private static String createRecipient() {
+    private String createRecipient(String iban, String name, String targetCurr) {
 
         Map<String, Object> detailsMap = new HashMap<>();
-        detailsMap.put("sortCode", "231470");
-        detailsMap.put("accountNumber", "28821822");
 
+        detailsMap.put("iban",iban);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("currency", "GBP");
-        map.put("type", "sort_code");
+        map.put("currency", targetCurr);
+        map.put("type", "iban");
         map.put("profile", getProfileId());
-        map.put("accountHolderName", "Ann Johnson");
+        map.put("accountHolderName", name.replaceAll("_"," "));
         map.put("legalType", "PRIVATE");
         map.put("details", detailsMap);
 
         HttpEntity<Object> entity = new HttpEntity<>(map, headers);
 
+        String accounts = "https://api.sandbox.transferwise.tech/v1/accounts";
         ResponseEntity<Object> response = restTemplate.postForEntity(accounts, entity, Object.class);
 
         JSONObject jsonObject = new JSONObject(Objects.requireNonNull(checkHttpStatus(response)).toString().replaceAll("=", ":"));
         return jsonObject.get("id").toString();
     }
 
-    private static String createTransfer() {
+    private String createTransfer(double amount, String targetCurr, String name, String iban) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + TOKEN);
 
 
         Map<String, Object> map = new HashMap<>();
 
-        map.put("targetAccount", createRecipient());
-        map.put("quoteUuid", Objects.requireNonNull(createQuote()));
+        map.put("targetAccount", createRecipient(iban, name, targetCurr));
+        map.put("quoteUuid", Objects.requireNonNull(createQuote(amount, targetCurr)));
         map.put("customerTransactionId", UUID.randomUUID());
 
 
         HttpEntity<Object> entity = new HttpEntity<>(map, headers);
 
+        String transfers = "https://api.sandbox.transferwise.tech/v1/transfers";
         ResponseEntity<Object> response = restTemplate.postForEntity(transfers, entity, Object.class);
 
         return getId(response);
 
     }
 
-    private static String getId(ResponseEntity<Object> response) {
+    private String getId(ResponseEntity<Object> response) {
         String responseBody = Objects.requireNonNull(checkHttpStatus(response)).toString();
         String[] series = responseBody.split(",");
         for (String s : series) {
@@ -122,13 +120,13 @@ public class WiseTransfer {
         return null;
     }
 
-    private static Object checkHttpStatus(ResponseEntity<Object> response) {
+    private Object checkHttpStatus(ResponseEntity<Object> response) {
         if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.ACCEPTED || response.getStatusCode() == HttpStatus.CREATED) {
             return response.getBody();
         } else return null;
     }
 
-    public static void fundTransfer() {
+    public String fundTransfer(double amount, String targetCurr, String name, String iban) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + TOKEN);
 
@@ -137,13 +135,16 @@ public class WiseTransfer {
 
         HttpEntity<Object> entity = new HttpEntity<>(map, headers);
 
-        ResponseEntity<Object> response = restTemplate.postForEntity(fund, entity, Object.class, getProfileId(), createTransfer());
-        System.out.println("final transfer : " + checkHttpStatus(response));
-    }
+        String fund = "https://api.sandbox.transferwise.tech/v3/profiles/{profileId}/transfers/{transferId}/payments";
+        ResponseEntity<Object> response = restTemplate.postForEntity(fund, entity, Object.class, getProfileId(), createTransfer(amount, targetCurr, name, iban));
 
-
-    public static void main(String[] args) {
-        fundTransfer();
+        String [] stat = Objects.requireNonNull(checkHttpStatus(response)).toString().split(",");
+        for(String s: stat){
+            if(s.contains("status=")){
+                return s.substring(8);
+            }
+        }
+        return null;
     }
 }
 

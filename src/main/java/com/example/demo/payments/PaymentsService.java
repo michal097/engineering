@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,12 +34,12 @@ public class PaymentsService {
         return invoiceRepo.findById(id).orElse(null);
     }
 
-    public Invoice changePaymentStatus(Invoice invoice) {
-        invoiceRepo.findById(invoice.getInvoiceId()).map(i -> {
+    public Invoice changePaymentStatus(String invoice) {
+        invoiceRepo.findById(invoice).map(i -> {
             i.setPaid(true);
             return invoiceRepo.save(i);
         });
-        return null;
+        return new Invoice();
     }
 
     public long getInvoicesToPaySize(){
