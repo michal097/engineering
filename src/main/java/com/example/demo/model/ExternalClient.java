@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import javax.validation.constraints.Size;
 import java.util.Set;
 
-@Document(indexName = "externalclient")
+@Document(indexName = "external")
 @Data
 @Builder
 public class ExternalClient {
