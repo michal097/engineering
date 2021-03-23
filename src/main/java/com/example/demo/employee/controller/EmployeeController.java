@@ -9,6 +9,7 @@ import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.InvoiceRepo;
 import com.example.demo.mongoRepo.ProjectRepository;
 import com.example.demo.security.model.User;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +23,7 @@ import static java.util.stream.Collectors.toSet;
 
 @RestController
 @CrossOrigin
+@Slf4j
 public class EmployeeController {
 
     private final EmployeeService employeeService;
@@ -86,9 +88,20 @@ public class EmployeeController {
                     c.setEmail(client.getEmail());
                     c.setNIP(client.getNIP());
                     c.setSkills(client.getSkills());
-                    clientRepoElastic.findById(id).map(e ->
-                            clientRepoElastic.save(c)
-                    );
+                    try {
+                        clientRepoElastic.findById(c.getClientId()).map(e -> {
+                            e.setName(c.getName());
+                            e.setSurname(c.getSurname());
+                            e.setAdress(c.getAdress());
+                            e.setEmail(c.getEmail());
+                            e.setNIP(c.getNIP());
+                            e.setSkills(c.getSkills());
+                            return clientRepoElastic.save(e);
+                          }
+                        );
+                    }catch (Exception e){
+                        log.error("error during update user");
+                    }
                     return clientRepository.save(c);
                 }).orElseGet(
                         () -> {

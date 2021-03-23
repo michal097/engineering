@@ -52,9 +52,13 @@ public class InitController {
 
 
 
-    @GetMapping("cl")
+    @GetMapping("ext")
     public List<ExternalClient> clientRepoElastics(){
         return extClientRepoElastic.findAll();
+    }
+    @GetMapping("cl")
+    public List<Client> clientRepoElasticsC(){
+        return clientRepoElastic.findAll();
     }
 
     @GetMapping("delEverything")
