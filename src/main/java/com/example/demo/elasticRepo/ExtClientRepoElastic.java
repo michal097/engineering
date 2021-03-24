@@ -7,6 +7,7 @@ import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ExtClientRepoElastic extends ElasticsearchRepository<ExternalClient, String> {
 
@@ -14,4 +15,6 @@ public interface ExtClientRepoElastic extends ElasticsearchRepository<ExternalCl
     List<ExternalClient> findExternalClientsBySearchPhrase(String phrase, Pageable pageable);
 
     List<ExternalClient> findAll();
+
+    Optional<ExternalClient> findByNip(String nip);
 }

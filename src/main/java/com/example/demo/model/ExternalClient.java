@@ -24,6 +24,7 @@ public class ExternalClient {
     private String nip;
     @NonNull
     private String bankAccNumber;
+    private double costs;
 
     private Set<Invoice> externalClientInvoices;
 

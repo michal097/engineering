@@ -30,7 +30,9 @@ public class ProjectService {
     private final ClientRepoElastic clientRepoElastic;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository, ClientRepoElastic clientRepoElastic) {
+    public ProjectService(ProjectRepository projectRepository,
+                          ClientRepository clientRepository,
+                          ClientRepoElastic clientRepoElastic) {
         this.projectRepository = projectRepository;
         this.clientRepository = clientRepository;
         this.clientRepoElastic = clientRepoElastic;
@@ -80,7 +82,11 @@ public class ProjectService {
     }
 
     public List<Project> projectsList(int page, int size) {
-        return projectRepository.findAll(PageRequest.of(page, size)).getContent().stream().filter(p -> !p.getEnded()).collect(toList());
+        return projectRepository.findAll(PageRequest.of(page, size))
+                .getContent()
+                .stream()
+                .filter(p -> !p.getEnded())
+                .collect(toList());
     }
 
     public long projectsLength() {
@@ -97,7 +103,11 @@ public class ProjectService {
 
     public Project getProjectById(String projectName) throws Exception {
         var pName = projectName.replaceAll("-", " ").trim();
-        return projectRepository.findAll().stream().filter(p -> p.getProjectName().equals(pName)).findFirst().orElseThrow(Exception::new);
+        return projectRepository.findAll()
+                .stream()
+                .filter(p -> p.getProjectName().equals(pName))
+                .findFirst()
+                .orElseThrow(Exception::new);
     }
 
     private void changeBusyOnClient(Project p) {
@@ -110,7 +120,10 @@ public class ProjectService {
     }
     private void deleteFromElastic(Project project) {
 
-        clientRepoElastic.findAll().stream().filter(c->c.getActualProject() != null && c.getActualProject().equals(project.getProjectName())).forEach(client -> {
+        clientRepoElastic.findAll()
+                .stream()
+                .filter(c->c.getActualProject() != null && c.getActualProject().equals(project.getProjectName()))
+                .forEach(client -> {
             client.setActualProject(null);
             clientRepoElastic.save(client);
         });

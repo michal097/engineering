@@ -1,5 +1,6 @@
 package com.example.demo.admin.service;
 
+import com.example.demo.elasticRepo.ExtClientRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
@@ -10,7 +11,6 @@ import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -22,12 +22,13 @@ public class ClientInvoiceService {
     private final ClientRepository clientRepository;
     private final InvoiceRepo invoiceRepo;
     private final ExternalClientRepo externalClientRepo;
-
+    private final ExtClientRepoElastic extClientRepoElastic;
     @Autowired
-    public ClientInvoiceService(ClientRepository clientRepository, InvoiceRepo invoiceRepo, ExternalClientRepo externalClientRepo) {
+    public ClientInvoiceService(ClientRepository clientRepository,ExtClientRepoElastic extClientRepoElastic, InvoiceRepo invoiceRepo, ExternalClientRepo externalClientRepo) {
         this.clientRepository = clientRepository;
         this.invoiceRepo = invoiceRepo;
         this.externalClientRepo = externalClientRepo;
+        this.extClientRepoElastic=extClientRepoElastic;
     }
 
     public void checkClient(Invoice invoice) {
@@ -53,7 +54,13 @@ public class ClientInvoiceService {
                 inv.add(invoice);
                 extClient.setExternalClientInvoices(inv);
             } else {
+                double costs = extClient.getCosts() + invoice.getCosts();
+                extClient.setCosts(costs);
                 extClient.getExternalClientInvoices().add(invoice);
+                extClientRepoElastic.findByNip(extClient.getNip()).ifPresent(e-> {
+                    e.setCosts(costs);
+                    extClientRepoElastic.save(e);
+                });
             }
             externalClientRepo.save(extClient);
         } else {
@@ -63,6 +70,7 @@ public class ClientInvoiceService {
                     .nip(invoice.getNIP())
                     .bankAccNumber(invoice.getBankAccNumber())
                     .externalClientInvoices(Set.of(invoice))
+                    .costs(invoice.getCosts())
                     .build();
             externalClientRepo.save(newExternalClient);
         }
