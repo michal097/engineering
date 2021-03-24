@@ -6,12 +6,10 @@ import com.example.demo.elasticRepo.InvoiceRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
+import lombok.val;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +42,7 @@ public class SearchController {
     @GetMapping("searchInvoice/{phrase}/{page}/{size}")
     public List<Invoice> makeSearch(@PathVariable String phrase, @PathVariable int page,@PathVariable int size) {
 
-        var searchInv = invoiceRepoElastic.findNIPWithFuzziness(phrase, PageRequest.of(page, size));
+        val searchInv = invoiceRepoElastic.findNIPWithFuzziness(phrase, PageRequest.of(page, size));
         invSize = searchInv.size();
 
         return searchInv;

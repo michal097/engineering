@@ -30,7 +30,7 @@ public class Client {
     @NonNull
     private String adress;
     @NonNull
-    @Size(min = 10 , max = 10)
+    @Size(min = 10, max = 10)
     private String NIP;
     @NonNull
     @Email
@@ -41,6 +41,7 @@ public class Client {
     private Boolean isBusy;
     private Set<Object> projects;
     private Role userType;
+    private Object actualProject;
 
     public void addProject(Project project) {
         if (this.projects == null) {
@@ -48,12 +49,6 @@ public class Client {
         }
         this.projects.add(project);
     }
-
-    public boolean setClientInv() {
-        this.setClientInvoices(new HashSet<>());
-        return true;
-    }
-
 
     public boolean setIsBusyInFilter() {
         this.setIsBusy(false);

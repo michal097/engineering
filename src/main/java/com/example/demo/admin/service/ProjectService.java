@@ -1,5 +1,6 @@
 package com.example.demo.admin.service;
 
+import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -25,11 +27,13 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final ClientRepository clientRepository;
+    private final ClientRepoElastic clientRepoElastic;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository) {
+    public ProjectService(ProjectRepository projectRepository, ClientRepository clientRepository, ClientRepoElastic clientRepoElastic) {
         this.projectRepository = projectRepository;
         this.clientRepository = clientRepository;
+        this.clientRepoElastic = clientRepoElastic;
     }
 
     private Set<Client> addProjectAndAssignPeople(Project project) {
@@ -51,7 +55,12 @@ public class ProjectService {
                 .peek(c -> clientRepository.findById(c.getClientId())
                         .ifPresent(
                                 cl -> {
+                                    clientRepoElastic.findById(cl.getClientId()).map(cElastic -> {
+                                        cElastic.setActualProject(project.getProjectName());
+                                        return clientRepoElastic.save(cElastic);
+                                    });
                                     cl.addProject(project);
+                                    cl.setActualProject(project);
                                     cl.setStartProject(project.getStartDate());
                                     cl.setIsBusy(true);
                                     clientRepository.save(cl);
@@ -63,7 +72,6 @@ public class ProjectService {
 
     public Project addProject(Project project) {
         boolean alreadyTaken = projectRepository.findProjectByProjectName(project.getProjectName()).isPresent();
-        System.out.println(project);
         if (alreadyTaken) throw new IllegalArgumentException();
         project.setProjectName(project.getProjectName().trim());
         project.setEmployeesOnProject(this.addProjectAndAssignPeople(project));
@@ -96,14 +104,26 @@ public class ProjectService {
 
         p.getEmployeesOnProject().forEach(c -> {
             c.setIsBusy(false);
+            c.setActualProject(null);
             clientRepository.save(c);
         });
     }
+    private void deleteFromElastic(Project project) {
 
+        clientRepoElastic.findAll().stream().filter(c->c.getActualProject() != null && c.getActualProject().equals(project.getProjectName())).forEach(client -> {
+            client.setActualProject(null);
+            clientRepoElastic.save(client);
+        });
+
+    }
     public List<Client> findClientsToProject(String projectName) {
         var project = projectRepository.findProjectByProjectName(projectName);
         var technologies = project.isPresent() ? project.get().getTechnologies() : new HashSet();
+        if (!project.isPresent()) {
+            return null;
+        }
         var calculatePeopleOnProj = project.get().getPeopleNeeded() - project.get().getEmployeesOnProject().size();
+
         return clientRepository.findAll()
                 .stream()
                 .filter(c -> c.getIsBusy() != null ? !c.getIsBusy() : c.setIsBusyInFilter())
@@ -113,16 +133,17 @@ public class ProjectService {
     }
 
 
-    public Project endProject(String projectName) {
-        projectRepository.findProjectByProjectName(projectName).map(project -> {
+    public Optional<Project> endProject(String projectName) {
+
+        return projectRepository.findProjectByProjectName(projectName).map(project -> {
             this.changeBusyOnClient(project);
+            this.deleteFromElastic(project);
             project.setDeadLineDate(LocalDate.now());
             project.setEmployeesOnProject(new HashSet<>());
             project.setEnded(true);
 
             return projectRepository.save(project);
         });
-        return null;
     }
 
     public Client addEmployeeToSpecProject(String clientId, Project project) {
@@ -130,6 +151,11 @@ public class ProjectService {
         client.ifPresent(c -> {
             c.addProject(project);
             c.setIsBusy(true);
+            c.setActualProject(project);
+            clientRepoElastic.findById(c.getClientId()).map(cElastic -> {
+                cElastic.setActualProject(project.getProjectName());
+                return clientRepoElastic.save(cElastic);
+            });
         });
         client.ifPresent(c -> this.updateProject(project, c));
         return client.map(clientRepository::save).orElse(null);

@@ -105,7 +105,7 @@ public class AdminController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("endOfProject/{projectName}")
-    public Project setEndOfProject(@PathVariable String projectName) {
+    public Optional<Project> setEndOfProject(@PathVariable String projectName) {
         return projectService.endProject(projectName);
     }
 
