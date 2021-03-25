@@ -41,13 +41,12 @@ public class AdminService {
         return username.toString();
     }
 
-    public Invoice prepareReadedData(List<String> list) {
-
+    public Invoice prepareReadData(List<String> list) {
 
         Map<String, String> findUserData = new HashMap<>();
 
         for (int i = 0; i < list.size(); i++) {
-            if (list.get(i).toLowerCase().contains("nabywca")) {
+            if (list.get(i).toLowerCase().contains("buyer")) {
                 var nab = list.get(i + 1);
 
                 String[] userData = nab.split(" ");
@@ -57,23 +56,33 @@ public class AdminService {
                     findUserData.put("name", userData[0]);
                 }
                 findUserData.put("surname", userData[userData.length - 1]);
-            } else if (list.get(i).toLowerCase().contains("nip")) {
-                findUserData.put("NIP", list.get(i).replaceAll("NIP ", ""));
+            } else if (list.get(i).toLowerCase().contains("vat id")) {
                 findUserData.put("bank", list.get(i + 2));
-            } else if (list.get(i).contains("zaplaty")) {
+                if(findUserData.get("vat id") == null) {
+                    findUserData.put("vat id", list.get(i).replaceAll("VAT ID ", ""));
+                }
+            } else if (list.get(i).contains("Total gross price")) {
 
-                findUserData.put("costs", list.get(i).replaceAll("Do zaplaty: ", "")
-                        .replaceAll(" PLN", "")
+                findUserData.put("costs", list.get(i+1)
+                        .replaceAll("EUR ", "")
                         .replaceAll(" ", "")
-                        .replaceAll(",", "."));
-            } else if (list.get(i).contains("Faktura numer")) {
+                        .replaceAll(",", ""));
+            } else if (list.get(i).contains("Invoice No. ")) {
                 findUserData.put("fvNr", list.get(i).split(" ")[2]);
             }
         }
         log.info("retrieving data from invoice using ocr");
+
+        System.out.println("name: " +findUserData.get("name"));
+        System.out.println("surname : " + findUserData.get("surname"));
+        System.out.println("vat id: " + findUserData.get("vat id"));
+        System.out.println("costs: " + findUserData.get("costs"));
+        System.out.println("bank: " + findUserData.get("bank"));
+        System.out.println("fvNr: " + findUserData.get("fvNr"));
+
         return Invoice.builder().invName(findUserData.get("name"))
                 .invSurname(findUserData.get("surname"))
-                .NIP(findUserData.get("NIP"))
+                .NIP(findUserData.get("vat id"))
                 .costs(Double.parseDouble(findUserData.get("costs")))
                 .bankAccNumber(findUserData.get("bank"))
                 .fvNumber(findUserData.get("fvNr"))
