@@ -1,6 +1,5 @@
 package com.example.demo.model;
 
-
 import com.example.demo.security.model.Role;
 import com.mongodb.lang.NonNull;
 import lombok.Builder;
@@ -41,7 +40,7 @@ public class Client {
     private Boolean isBusy;
     private Set<Object> projects;
     private Role userType;
-    private Object actualProject;
+    private String actualProject;
 
     public void addProject(Project project) {
         if (this.projects == null) {

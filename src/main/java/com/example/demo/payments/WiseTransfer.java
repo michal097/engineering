@@ -1,5 +1,6 @@
 package com.example.demo.payments;
 
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class WiseTransfer {
 
     private final String TOKEN = "2bf4b3fd-1714-4a92-a757-1ba692c50ac2";
@@ -141,9 +143,11 @@ public class WiseTransfer {
         String [] stat = Objects.requireNonNull(checkHttpStatus(response)).toString().split(",");
         for(String s: stat){
             if(s.contains("status=")){
+                log.info("Payment has been finished");
                 return s.substring(8);
             }
         }
+        log.error("error during making payment");
         return null;
     }
 }

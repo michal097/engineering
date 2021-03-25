@@ -28,10 +28,7 @@ public class PaymentController {
         if(iban.startsWith("PL")){
             targetCurr = "PLN";
         }else targetCurr = "EUR";
-        System.out.println("imma in payments ");
         if( wiseTransfer.fundTransfer(amount, targetCurr, name, iban) .equals("COMPLETED")){
-            System.out.println("completed");
-            System.out.println(invoiceId);
             return paymentsService.changePaymentStatus(invoiceId);
         }else throw new IllegalArgumentException();
     }
@@ -45,7 +42,6 @@ public class PaymentController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("getSpecInvoiceById/{id}")
     public Invoice getinvoiceById(@PathVariable String id) {
-        System.out.println(paymentsService.getInvoice(id));
         return paymentsService.getInvoice(id);
     }
 

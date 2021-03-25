@@ -57,7 +57,6 @@ public class EmployeeService {
     }
 
     public long countAllExternalClients(){
-        System.out.println(externalClientRepo.findAll().size());
         return externalClientRepo.findAll().size();
     }
 

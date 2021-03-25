@@ -62,7 +62,7 @@ public class ProjectService {
                                         return clientRepoElastic.save(cElastic);
                                     });
                                     cl.addProject(project);
-                                    cl.setActualProject(project);
+                                    cl.setActualProject(project.getProjectName());
                                     cl.setStartProject(project.getStartDate());
                                     cl.setIsBusy(true);
                                     clientRepository.save(cl);
@@ -164,7 +164,7 @@ public class ProjectService {
         client.ifPresent(c -> {
             c.addProject(project);
             c.setIsBusy(true);
-            c.setActualProject(project);
+            c.setActualProject(project.getProjectName());
             clientRepoElastic.findById(c.getClientId()).map(cElastic -> {
                 cElastic.setActualProject(project.getProjectName());
                 return clientRepoElastic.save(cElastic);

@@ -71,7 +71,6 @@ public class EmployeeController {
                     cOnPro.getEmployeesOnProject().remove(value);
                     clientRepository.deleteById(id);
                     clientRepoElastic.deleteById(id);
-                    System.out.println("usuwam w hui");
                     return projectRepository.save(cOnPro);
                 })).orElse(null);
 
