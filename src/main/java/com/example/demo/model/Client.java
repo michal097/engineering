@@ -4,6 +4,7 @@ import com.example.demo.security.model.Role;
 import com.mongodb.lang.NonNull;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 @Document(indexName = "client")
 @Data
 @Builder
+@EqualsAndHashCode
 public class Client {
 
     @Id

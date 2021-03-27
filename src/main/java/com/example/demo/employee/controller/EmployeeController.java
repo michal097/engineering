@@ -5,6 +5,7 @@ import com.example.demo.employee.service.EmployeeService;
 import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
+import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.InvoiceRepo;
 import com.example.demo.mongoRepo.ProjectRepository;
@@ -60,20 +61,32 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @DeleteMapping("deleteEmployee/{id}")
     public Object deleteEmployee(@PathVariable String id) {
-        var client = clientRepository.findById(id);
-            if(client.isPresent() && client.get().getProjects() == null){
-                clientRepository.deleteById(id);
-                clientRepoElastic.deleteById(id);
-                return "deleted";
-            } else
-        return client.map(value -> projectRepository.findAll().stream().filter(p -> p.getEmployeesOnProject().contains(value))
-                .map(cOnPro -> {
-                    cOnPro.getEmployeesOnProject().remove(value);
-                    clientRepository.deleteById(id);
-                    clientRepoElastic.deleteById(id);
-                    return projectRepository.save(cOnPro);
-                })).orElse(null);
 
+        var client = clientRepository.findById(id);
+
+        if (client.isPresent() && client.get().getProjects() == null) {
+            clientRepository.deleteById(id);
+            clientRepoElastic.deleteById(id);
+        } else {
+            return client.map(c -> projectRepository.findAll().stream().filter(p -> findClientsOnProject(c, p))
+                    .map(cOnPro -> {
+                        var cc = cOnPro.getEmployeesOnProject()
+                                .stream()
+                                .filter(e -> e.getClientId()
+                                        .equals(c.getClientId()))
+                                .findAny();
+                        cc.ifPresent(value -> cOnPro.getEmployeesOnProject().remove(value));
+                        clientRepository.deleteById(id);
+                        clientRepoElastic.deleteById(id);
+                        return projectRepository.save(cOnPro);
+                    })).orElse(null);
+        }
+        return "";
+    }
+
+    public boolean findClientsOnProject(Client client, Project project) {
+        Set<Client> cc = project.getEmployeesOnProject();
+        return cc.stream().anyMatch(c -> c.getClientId().equals(client.getClientId()));
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
@@ -89,16 +102,16 @@ public class EmployeeController {
                     c.setSkills(client.getSkills());
                     try {
                         clientRepoElastic.findById(c.getClientId()).map(e -> {
-                            e.setName(c.getName());
-                            e.setSurname(c.getSurname());
-                            e.setAdress(c.getAdress());
-                            e.setEmail(c.getEmail());
-                            e.setNIP(c.getNIP());
-                            e.setSkills(c.getSkills());
-                            return clientRepoElastic.save(e);
-                          }
+                                    e.setName(c.getName());
+                                    e.setSurname(c.getSurname());
+                                    e.setAdress(c.getAdress());
+                                    e.setEmail(c.getEmail());
+                                    e.setNIP(c.getNIP());
+                                    e.setSkills(c.getSkills());
+                                    return clientRepoElastic.save(e);
+                                }
                         );
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         log.error("error during update user");
                     }
                     return clientRepository.save(c);
@@ -131,8 +144,9 @@ public class EmployeeController {
     public List<ExternalClient> allExternals(@PathVariable int page, @PathVariable int size) {
         return employeeService.allExternals(page, size);
     }
+
     @GetMapping("externalSize")
-    public long getExternalListSize(){
+    public long getExternalListSize() {
         return employeeService.getAllExternals();
     }
 
@@ -149,7 +163,7 @@ public class EmployeeController {
     }
 
     @GetMapping("countAllExternalClients")
-    public long getAllExternalUsersCount(){
+    public long getAllExternalUsersCount() {
         return employeeService.countAllExternalClients();
     }
 

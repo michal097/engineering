@@ -1,6 +1,5 @@
 package com.example.demo.admin.service;
 
-import com.example.demo.model.Client;
 import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 
 @Service
@@ -72,13 +70,6 @@ public class AdminService {
             }
         }
         log.info("retrieving data from invoice using ocr");
-
-        System.out.println("name: " +findUserData.get("name"));
-        System.out.println("surname : " + findUserData.get("surname"));
-        System.out.println("vat id: " + findUserData.get("vat id"));
-        System.out.println("costs: " + findUserData.get("costs"));
-        System.out.println("bank: " + findUserData.get("bank"));
-        System.out.println("fvNr: " + findUserData.get("fvNr"));
 
         return Invoice.builder().invName(findUserData.get("name"))
                 .invSurname(findUserData.get("surname"))

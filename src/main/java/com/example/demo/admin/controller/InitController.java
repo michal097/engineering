@@ -3,8 +3,6 @@ package com.example.demo.admin.controller;
 import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.elasticRepo.ExtClientRepoElastic;
 import com.example.demo.elasticRepo.InvoiceRepoElastic;
-import com.example.demo.model.Client;
-import com.example.demo.model.ExternalClient;
 import com.example.demo.mongoRepo.*;
 import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
@@ -14,7 +12,6 @@ import com.example.demo.security.repository.UserRoleRepository;
 import com.example.demo.security.service.UserCreateService;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,18 +45,6 @@ public class InitController {
     private ProjectRepository projectRepository;
     @Autowired
     private ClientRepoElastic clientRepoElastic;
-
-
-
-
-    @GetMapping("ext")
-    public List<ExternalClient> clientRepoElastics(){
-        return extClientRepoElastic.findAll();
-    }
-    @GetMapping("cl")
-    public List<Client> clientRepoElasticsC(){
-        return clientRepoElastic.findAll();
-    }
 
     @GetMapping("delEverything")
     public String kaboom() {

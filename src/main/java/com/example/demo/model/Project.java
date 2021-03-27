@@ -2,8 +2,8 @@ package com.example.demo.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotNull;
@@ -13,6 +13,7 @@ import java.util.Set;
 @Document
 @Data
 @Builder
+@EqualsAndHashCode
 public class Project {
     @Id
     String projectId;
@@ -31,6 +32,6 @@ public class Project {
     private int peopleNeeded;
     private Boolean ended;
 
-    @DBRef
     private Set<Client> employeesOnProject;
+
 }

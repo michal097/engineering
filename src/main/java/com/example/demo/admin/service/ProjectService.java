@@ -180,4 +180,24 @@ public class ProjectService {
             return projectRepository.save(p);
         });
     }
+
+    public void removeEmployeeFromProject(String projectName, String clientId) {
+            clientRepository.findById(clientId).ifPresent(
+                    c -> {
+                        c.setActualProject(null);
+                        c.setIsBusy(false);
+                        clientRepository.save(c);
+                    }
+            );
+
+            projectRepository.findProjectByProjectName(projectName).ifPresent(p -> {
+                   var cc = p.getEmployeesOnProject().stream().filter(e -> e.getClientId().equals(clientId)).findAny();
+                    cc.ifPresent(value -> p.getEmployeesOnProject().remove(value));
+                projectRepository.save(p);
+            });
+            clientRepoElastic.findById(clientId).ifPresent(c -> {
+                c.setActualProject(null);
+                clientRepoElastic.save(c);
+            });
+    }
 }

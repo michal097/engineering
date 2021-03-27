@@ -6,6 +6,7 @@ import com.example.demo.elasticRepo.InvoiceRepoElastic;
 import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import java.util.*;
 
 @RestController
 @CrossOrigin
+@Slf4j
 public class SearchController {
 
 
@@ -44,6 +46,7 @@ public class SearchController {
 
         val searchInv = invoiceRepoElastic.findNIPWithFuzziness(phrase, PageRequest.of(page, size));
         invSize = searchInv.size();
+        log.info("found {} record for invoice search", invSize);
 
         return searchInv;
     }
@@ -55,6 +58,7 @@ public class SearchController {
          var cl = clientRepository.findClientsBySearchPhrase(phrase, PageRequest.of(page, size));
 
         clientSize = cl.size();
+        log.info("found {} record for client search", clientSize);
 
         return cl;
     }
@@ -66,6 +70,7 @@ public class SearchController {
             var extCl = externalClientRepo.findExternalClientsBySearchPhrase(phrase, PageRequest.of(page, size));
 
         extClientSize = extCl.size();
+        log.info("found {} record for external client search", extClientSize);
 
         return extCl;
     }

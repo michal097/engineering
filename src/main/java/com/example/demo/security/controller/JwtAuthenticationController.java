@@ -5,6 +5,7 @@ import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.security.config.JwtTokenUtil;
 import com.example.demo.security.model.JwtRequest;
 import com.example.demo.security.model.JwtResponse;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @RestController
 @CrossOrigin
+@Slf4j
 public class JwtAuthenticationController {
 
     private final AuthenticationManager authenticationManager;
@@ -58,6 +60,7 @@ public class JwtAuthenticationController {
 
     @GetMapping("userName")
     public String userNameAndSurname() {
+        log.info("logged as {}", userNameAndSurname);
         return userNameAndSurname;
     }
 

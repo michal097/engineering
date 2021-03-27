@@ -120,4 +120,10 @@ public class AdminController {
     public Client addClientToProject(@PathVariable String clientId, @RequestBody Project project) {
         return projectService.addEmployeeToSpecProject(clientId, project);
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
+    @GetMapping("deleteEmployeeFromProject/{projectName}/{clientId}")
+    public void deleteEmployeeFromProject(@PathVariable String clientId, @PathVariable String projectName){
+            projectService.removeEmployeeFromProject(projectName, clientId);
+    }
 }
