@@ -162,7 +162,12 @@ public class ProjectService {
     public Client addEmployeeToSpecProject(String clientId, Project project) {
         var client = clientRepository.findById(clientId);
         client.ifPresent(c -> {
-            c.addProject(project);
+            if(c.getProjects().stream()
+                    .map(Project.class::cast)
+                    .noneMatch(p->p.getProjectName()
+                            .equals(project.getProjectName()))) {
+                c.addProject(project);
+            }
             c.setIsBusy(true);
             c.setActualProject(project.getProjectName());
             clientRepoElastic.findById(c.getClientId()).map(cElastic -> {

@@ -1,19 +1,38 @@
 package com.example.demo.admin.controller;
 
 import com.example.demo.admin.service.AdminService;
+import com.example.demo.admin.service.InvoiceReport;
 import com.example.demo.admin.service.ProjectService;
 import com.example.demo.mail.MailService;
 import com.example.demo.model.Client;
 import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.util.IOUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -28,13 +47,16 @@ public class AdminController {
     private final AdminService adminService;
     private final MailService mailService;
     private final ProjectService projectService;
+    private final InvoiceReport invoiceReport;
 
     @Autowired
-    public AdminController(MailService mailService, AdminService adminService, ClientRepository clientRepository, ProjectService projectService) {
+    public AdminController(MailService mailService, AdminService adminService, ClientRepository clientRepository, ProjectService projectService,
+                           InvoiceReport invoiceReport) {
         this.mailService = mailService;
         this.adminService = adminService;
         this.clientRepository = clientRepository;
         this.projectService = projectService;
+        this.invoiceReport = invoiceReport;
     }
 
 
@@ -123,7 +145,21 @@ public class AdminController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("deleteEmployeeFromProject/{projectName}/{clientId}")
-    public void deleteEmployeeFromProject(@PathVariable String clientId, @PathVariable String projectName){
-            projectService.removeEmployeeFromProject(projectName, clientId);
+    public void deleteEmployeeFromProject(@PathVariable String clientId, @PathVariable String projectName) {
+        projectService.removeEmployeeFromProject(projectName, clientId);
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+    @GetMapping("getReport/{from}/{to}")
+
+    public ResponseEntity<?> getReport(@PathVariable String from, @PathVariable String to) throws IOException {
+        invoiceReport.generateReport(from, to);
+            File file = new File(invoiceReport.getPATH());
+            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment;filename=" + file.getName())
+                    .contentType(MediaType.APPLICATION_PDF).contentLength(file.length())
+                    .body(resource);
+        }
 }

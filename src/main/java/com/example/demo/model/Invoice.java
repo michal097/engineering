@@ -1,15 +1,14 @@
 package com.example.demo.model;
 
 import com.mongodb.lang.NonNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
+import java.time.LocalDate;
 
 
 @Document(indexName = "invoice")
@@ -36,7 +35,10 @@ public class Invoice {
     @Min(1)
     private double costs;
 
+    private String invoiceDate;
+
     private String invoiceURL;
     private boolean paid;
+    private String clientType;
 
 }

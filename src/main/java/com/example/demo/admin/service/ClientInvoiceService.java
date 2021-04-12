@@ -7,6 +7,7 @@ import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.ClientRepository;
 import com.example.demo.mongoRepo.ExternalClientRepo;
 import com.example.demo.mongoRepo.InvoiceRepo;
+import lombok.extern.slf4j.Slf4j;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
+@Slf4j
 public class ClientInvoiceService {
 
 
@@ -30,7 +32,7 @@ public class ClientInvoiceService {
         this.externalClientRepo = externalClientRepo;
         this.extClientRepoElastic=extClientRepoElastic;
     }
-
+    private Invoice invoiceClient;
     public void checkClient(Invoice invoice) {
         Optional<Client> clientIsPresent =
                 clientRepository.findByNIP(invoice.getNIP());
@@ -40,23 +42,29 @@ public class ClientInvoiceService {
 
 
         if (clientIsPresent.isPresent()) {
+            invoiceClient = invoice;
             var client = clientIsPresent.get();
             if (client.getClientInvoices() == null) {
                 client.setClientInvoices(new HashSet<>());
             }
-            client.getClientInvoices().add(invoice);
+            invoiceClient.setClientType("Internal");
+            client.getClientInvoices().add(invoiceClient);
 
             clientRepository.save(client);
         } else if (externalClient.isPresent()) {
+            invoiceClient = invoice;
+            invoiceClient.setClientType("External");
             var extClient = externalClient.get();
             if (extClient.getExternalClientInvoices() == null) {
                 Set<Invoice> inv = new HashSet<>();
-                inv.add(invoice);
+                inv.add(invoiceClient);
                 extClient.setExternalClientInvoices(inv);
+
             } else {
+                invoiceClient.setClientType("External");
                 double costs = extClient.getCosts() + invoice.getCosts();
                 extClient.setCosts(costs);
-                extClient.getExternalClientInvoices().add(invoice);
+                extClient.getExternalClientInvoices().add(invoiceClient);
                 extClientRepoElastic.findByNip(extClient.getNip()).ifPresent(e-> {
                     e.setCosts(costs);
                     extClientRepoElastic.save(e);
@@ -64,6 +72,7 @@ public class ClientInvoiceService {
             }
             externalClientRepo.save(extClient);
         } else {
+            invoice.setClientType("External");
             var newExternalClient = ExternalClient.builder()
                     .name(invoice.getInvName())
                     .surname(invoice.getInvSurname())
@@ -78,11 +87,11 @@ public class ClientInvoiceService {
     }
 
     public void saveInvoice(Invoice invoice) {
-
-        Optional<Invoice> isAlreadyInRepo = invoiceRepo.findByFvNumber(invoice.getFvNumber());
+        invoiceClient = invoice;
+        Optional<Invoice> isAlreadyInRepo = invoiceRepo.findByFvNumber(invoiceClient.getFvNumber());
 
         if (!isAlreadyInRepo.isPresent()) {
-            invoiceRepo.save(invoice);
+            invoiceRepo.save(invoiceClient);
         }
     }
 }

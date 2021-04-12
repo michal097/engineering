@@ -7,7 +7,6 @@ import com.example.demo.model.Client;
 import com.example.demo.model.ExternalClient;
 import com.example.demo.model.Invoice;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -44,7 +43,8 @@ public class SearchController {
     @GetMapping("searchInvoice/{phrase}/{page}/{size}")
     public List<Invoice> makeSearch(@PathVariable String phrase, @PathVariable int page,@PathVariable int size) {
 
-        val searchInv = invoiceRepoElastic.findNIPWithFuzziness(phrase, PageRequest.of(page, size));
+        List<Invoice> searchInv = invoiceRepoElastic.findNIPWithFuzziness(phrase, PageRequest.of(page, size));
+
         invSize = searchInv.size();
         log.info("found {} record for invoice search", invSize);
 

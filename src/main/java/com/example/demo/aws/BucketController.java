@@ -11,6 +11,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 
 @CrossOrigin
 @RestController
@@ -52,8 +57,9 @@ public class BucketController {
             log.error("Following invoice already exists in database");
             throw new IllegalArgumentException(t.toString());
         });
-        clientInvoiceService.saveInvoice(inv);
+        inv.setInvoiceDate(LocalDate.now().toString());
         clientInvoiceService.checkClient(inv);
+        clientInvoiceService.saveInvoice(inv);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
