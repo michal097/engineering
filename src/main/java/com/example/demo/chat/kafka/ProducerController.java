@@ -3,6 +3,8 @@ package com.example.demo.chat.kafka;
 
 import com.example.demo.chat.Constants;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -10,6 +12,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import com.example.demo.chat.model.ChatRepository;
 import com.example.demo.chat.model.ModelChat;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.jetbrains.annotations.NotNull;
@@ -30,17 +35,27 @@ public class ProducerController {
 	private static final Logger LOG = LoggerFactory.getLogger(ProducerController.class);
 
 	private final ProducerCallback producerCallback = new ProducerCallback();
+	private final ChatRepository chatRepository;
+	private final KafkaTemplate<String, ModelChat> kafkaTemplate;
 
 	@Autowired
-	private KafkaTemplate<String, ModelChat> kafkaTemplate;
-
+	public ProducerController(ChatRepository chatRepository, KafkaTemplate<String, ModelChat> kafkaTemplate){
+		this.chatRepository = chatRepository;
+		this.kafkaTemplate = kafkaTemplate;
+	}
 	@GetMapping("/chat/{message}")
 	public String generateMessages(@PathVariable String message) {
 		String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
+		ModelChat modelChat = new ModelChat(username + ": " + message);
 		this.waitFor();
-		this.sendToKafka(new ModelChat(username + ": " + message));
+		this.sendToKafka(modelChat);
+		chatRepository.save(modelChat);
 		return username;
+	}
+
+	@GetMapping("getChat")
+	public List<String> getMessages(){
+		return chatRepository.findAll().stream().map(ModelChat::getMessage).collect(Collectors.toList());//.sort(Comparator.comparing(ModelChat::getMessage));
 	}
 
 	@GetMapping("chat/user")
@@ -52,6 +67,7 @@ public class ProducerController {
 		this.kafkaTemplate
 				.send(Constants.KAFKA_TOPIC, UUID.randomUUID().toString(), model)
 				.addCallback(this.producerCallback);
+
 	}
 
 	private void waitFor() {
