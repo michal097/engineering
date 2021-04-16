@@ -162,6 +162,9 @@ public class ProjectService {
     public Client addEmployeeToSpecProject(String clientId, Project project) {
         var client = clientRepository.findById(clientId);
         client.ifPresent(c -> {
+            if(c.getProjects() == null){
+                c.setProjects(new HashSet<>());
+            }
             if(c.getProjects().stream()
                     .map(Project.class::cast)
                     .noneMatch(p->p.getProjectName()

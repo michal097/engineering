@@ -35,6 +35,8 @@ public class Invoice {
     @Min(1)
     private double costs;
 
+    private String invoiceUUID;
+
     private String invoiceDate;
 
     private String invoiceURL;

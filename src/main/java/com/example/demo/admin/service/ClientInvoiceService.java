@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -54,6 +55,7 @@ public class ClientInvoiceService {
         } else if (externalClient.isPresent()) {
             invoiceClient = invoice;
             invoiceClient.setClientType("External");
+            invoiceClient.setInvoiceId(UUID.randomUUID().toString());
             var extClient = externalClient.get();
             if (extClient.getExternalClientInvoices() == null) {
                 Set<Invoice> inv = new HashSet<>();
@@ -62,6 +64,7 @@ public class ClientInvoiceService {
 
             } else {
                 invoiceClient.setClientType("External");
+                invoiceClient.setInvoiceId(UUID.randomUUID().toString());
                 double costs = extClient.getCosts() + invoice.getCosts();
                 extClient.setCosts(costs);
                 extClient.getExternalClientInvoices().add(invoiceClient);

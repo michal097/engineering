@@ -55,7 +55,7 @@ public class ProducerController {
 
 	@GetMapping("getChat")
 	public List<String> getMessages(){
-		return chatRepository.findAll().stream().map(ModelChat::getMessage).collect(Collectors.toList());//.sort(Comparator.comparing(ModelChat::getMessage));
+		return chatRepository.findAll().stream().map(ModelChat::getMessage).collect(Collectors.toList());
 	}
 
 	@GetMapping("chat/user")
