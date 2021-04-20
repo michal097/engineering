@@ -1,9 +1,12 @@
 package com.example.demo.admin.controller;
 
+import com.example.demo.chat.model.ChatRepository;
+import com.example.demo.chat.model.ModelChat;
 import com.example.demo.elasticRepo.ClientRepoElastic;
 import com.example.demo.elasticRepo.ExtClientRepoElastic;
 import com.example.demo.elasticRepo.InvoiceRepoElastic;
 import com.example.demo.model.ExternalClient;
+import com.example.demo.model.Invoice;
 import com.example.demo.mongoRepo.*;
 import com.example.demo.security.model.Role;
 import com.example.demo.security.model.User;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Set;
 
 
 @RestController
@@ -46,10 +50,14 @@ public class InitController {
     private ProjectRepository projectRepository;
     @Autowired
     private ClientRepoElastic clientRepoElastic;
-@GetMapping("ext")
-public List<ExternalClient> exter(){
-    return extClientRepoElastic.findAll();
-}
+    @Autowired
+    private ChatRepository chatRepository;
+
+    @GetMapping("clean")
+    public void external() {
+        chatRepository.deleteAll();
+    }
+
     @GetMapping("delEverything")
     public String kaboom() {
 

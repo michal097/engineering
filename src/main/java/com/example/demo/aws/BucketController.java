@@ -37,6 +37,7 @@ public class BucketController {
     public void uploadFile(@RequestParam("file") MultipartFile file) {
         amazonClient.uploadFile(file);
         try {
+            System.out.println(adminService.prepareReadData(amazonClient.detectTextOnImg(amazonClient.generateFileName(file))));
             invoice = adminService.prepareReadData(amazonClient.detectTextOnImg(amazonClient.generateFileName(file)));
         }catch (Exception e){
             log.error("error during reading invoice...");

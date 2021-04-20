@@ -23,6 +23,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -51,8 +52,6 @@ public class AmazonClient {
 
     @Value("${aws.textractUrl}")
     private String textractUrl;
-
-    private final String randomSuffix = UUID.randomUUID().toString().substring(0,4);
 
     private final AWSCredentialsProvider creds = new AWSCredentialsProvider() {
         @Override
@@ -90,6 +89,7 @@ public class AmazonClient {
     }
 
     public String generateFileName(MultipartFile multiPart) {
+        String randomSuffix = UUID.randomUUID().toString().substring(0,4);
         return Objects.requireNonNull(multiPart.getOriginalFilename()).replaceAll(" ", "_").concat(randomSuffix);
     }
 

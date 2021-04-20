@@ -44,6 +44,9 @@ public class Client {
     private Role userType;
     private String actualProject;
 
+    //chat
+    private Set<String> chatIds;
+
     public void addProject(Project project) {
         if (this.projects == null) {
             this.projects = new HashSet<>();

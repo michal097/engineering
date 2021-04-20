@@ -15,16 +15,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class Listener {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Listener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Listener.class);
 
-	@Autowired
-	private SimpMessagingTemplate webSocket;
 
-	@KafkaListener(topics = Constants.KAFKA_TOPIC)
-	public void processMessage(ConsumerRecord<String, ModelChat> cr, @Payload ModelChat content) {
-		LOG.info("Received content from Kafka: {}", content);
+    private final SimpMessagingTemplate webSocket;
 
-		this.webSocket.convertAndSend(Constants.WEBSOCKET_DESTINATION, content.getMessage());
-	}
+    @Autowired
+    public Listener(SimpMessagingTemplate simpMessagingTemplate) {
+        this.webSocket = simpMessagingTemplate;
+    }
 
+    @KafkaListener(topics = Constants.KAFKA_TOPIC)
+    public void processMessage(ConsumerRecord<String, ModelChat> cr, @Payload ModelChat content) {
+        LOG.info("Received content from Kafka: {}", content);
+
+        if(content.getModelChatId() != null){
+            this.webSocket.convertAndSend(Constants.WEBSOCKET_DESTINATION + "/" + content.getModelChatId(), content);
+
+        }else
+        this.webSocket.convertAndSend(Constants.WEBSOCKET_DESTINATION, content);
+    }
 }
