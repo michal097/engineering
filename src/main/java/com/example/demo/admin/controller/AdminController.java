@@ -68,13 +68,28 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @PostMapping("createUser")
     public Client createClient(@RequestBody Client client) {
+        //Make first letter upper
+       client.setName(client.getName().substring(0,1).toUpperCase() +
+               client.getName().substring(1).toLowerCase());
 
+       client.setSurname(client.getSurname().substring(0,1).toUpperCase() +
+               client.getSurname().substring(1).toLowerCase());
+        //generates unique username
         client.setUsername(adminService.makeUserName(client.getName(), client.getSurname()));
-        mailService.sendSimpleMail(client.getEmail(), "Utworzono konto", "zaloguj sie na stronę: http://localhost:4200 przy użyciu username: " + client.getUsername());
-        log.info("user with username, {} has been created", client.getUsername());
-        log.info("mail has been sent do mail {}", client.getEmail());
+        mailService.sendSimpleMail(client.getEmail(),
+                "Utworzono konto",
+                "zaloguj sie na stronę: http://localhost:4200 przy użyciu username: "
+                        + client.getUsername());
+        log.info("user with username, {} has been created",
+                client.getUsername());
+        log.info("mail has been sent do mail {}",
+                client.getEmail());
 
-        Optional<Client> isAlreadyPresent = clientRepository.findAll().stream().filter(n -> n.getNIP().equals(client.getNIP())).findAny();
+        Optional<Client> isAlreadyPresent = clientRepository.findAll()
+                .stream()
+                .filter(n -> n.getNIP().equals(client.getNIP()))
+                .findAny();
+
         if (isAlreadyPresent.isPresent()) {
             log.error("such client already exist in database");
             throw new IllegalArgumentException();
@@ -92,7 +107,8 @@ public class AdminController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("listAllEmployees/{page}/{size}")
     public List<Client> listAllEmployees(@PathVariable int page, @PathVariable int size) {
-        return clientRepository.findAll(PageRequest.of(page, size, Sort.Direction.ASC, "name", "surname")).getContent();
+        return clientRepository.findAll(PageRequest.of(page, size, Sort.Direction.ASC, "name", "surname"))
+                               .getContent();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")

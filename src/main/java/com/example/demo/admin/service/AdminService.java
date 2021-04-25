@@ -27,7 +27,8 @@ public class AdminService {
         return clientRepository.findAllByUsername(username).isPresent();
     }
     public String makeUserName(String name, String surname) {
-        StringBuilder username = new StringBuilder(deleteSpecialChars(name).substring(0, 1).concat(deleteSpecialChars(surname).substring(1)).toLowerCase());
+        StringBuilder username = new StringBuilder(deleteSpecialChars(name).substring(0, 1).concat(deleteSpecialChars(surname)));
+        System.out.println("username" + username);
         boolean isPres = searchExistingUsername(username.toString());
         int i = 0;
         while(isPres){
