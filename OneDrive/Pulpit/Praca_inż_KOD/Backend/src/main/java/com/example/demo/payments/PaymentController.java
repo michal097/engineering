@@ -3,7 +3,10 @@ package com.example.demo.payments;
 import com.example.demo.model.Invoice;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -14,23 +17,24 @@ public class PaymentController {
 
     private final PaymentsService paymentsService;
     private final WiseTransfer wiseTransfer;
+
     @Autowired
     PaymentController(PaymentsService paymentsService, WiseTransfer wiseTransfer) {
         this.paymentsService = paymentsService;
-        this.wiseTransfer=wiseTransfer;
+        this.wiseTransfer = wiseTransfer;
 
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @GetMapping("pay/{amount}/{name}/{iban}/{invoiceId}")
-        public Invoice str(@PathVariable double amount, @PathVariable String name, @PathVariable String iban, @PathVariable String invoiceId){
+    public Invoice str(@PathVariable double amount, @PathVariable String name, @PathVariable String iban, @PathVariable String invoiceId) {
         String targetCurr;
-        if(iban.startsWith("PL")){
+        if (iban.startsWith("PL")) {
             targetCurr = "PLN";
-        }else targetCurr = "EUR";
-        if( wiseTransfer.fundTransfer(amount, targetCurr, name, iban) .equals("COMPLETED")){
+        } else targetCurr = "EUR";
+        if (wiseTransfer.fundTransfer(amount, targetCurr, name, iban).equals("COMPLETED")) {
             return paymentsService.changePaymentStatus(invoiceId);
-        }else throw new IllegalArgumentException();
+        } else throw new IllegalArgumentException();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
@@ -44,12 +48,14 @@ public class PaymentController {
     public Invoice getinvoiceById(@PathVariable String id) {
         return paymentsService.getInvoice(id);
     }
+
     @GetMapping("getInvoiceIdByUUID/{UUID}")
-    public String getIdByUUIDInvoice(@PathVariable String UUID){
+    public String getIdByUUIDInvoice(@PathVariable String UUID) {
         return paymentsService.getInvoiceIdByUUID(UUID);
     }
+
     @GetMapping("getInvoicesToPaySize")
-    public long getInvoicesSize(){
+    public long getInvoicesSize() {
         return paymentsService.getInvoicesToPaySize();
     }
 }

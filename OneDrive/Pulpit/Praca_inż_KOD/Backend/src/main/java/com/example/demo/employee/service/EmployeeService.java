@@ -46,17 +46,18 @@ public class EmployeeService {
     }
 
     public List<ExternalClient> allExternals(int page, int size) {
-        return externalClientRepo.findAll(PageRequest.of(page,size)).getContent();
+        return externalClientRepo.findAll(PageRequest.of(page, size)).getContent();
     }
 
     public ExternalClient getExternalClient(String id) {
         return externalClientRepo.findById(id).orElse(null);
     }
-    public long getAllExternals(){
+
+    public long getAllExternals() {
         return externalClientRepo.findAll().size();
     }
 
-    public long countAllExternalClients(){
+    public long countAllExternalClients() {
         return externalClientRepo.findAll().size();
     }
 

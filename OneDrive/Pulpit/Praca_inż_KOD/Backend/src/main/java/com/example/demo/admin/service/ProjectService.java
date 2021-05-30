@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +68,6 @@ public class ProjectService {
                                 }
                         ))
                 .collect(toSet());
-
     }
 
     public Project addProject(Project project) {
@@ -118,17 +116,19 @@ public class ProjectService {
             clientRepository.save(c);
         });
     }
+
     private void deleteFromElastic(Project project) {
 
         clientRepoElastic.findAll()
                 .stream()
-                .filter(c->c.getActualProject() != null && c.getActualProject().equals(project.getProjectName()))
+                .filter(c -> c.getActualProject() != null && c.getActualProject().equals(project.getProjectName()))
                 .forEach(client -> {
-            client.setActualProject(null);
-            clientRepoElastic.save(client);
-        });
+                    client.setActualProject(null);
+                    clientRepoElastic.save(client);
+                });
 
     }
+
     public List<Client> findClientsToProject(String projectName) {
         var project = projectRepository.findProjectByProjectName(projectName);
         var technologies = project.isPresent() ? project.get().getTechnologies() : new HashSet();
@@ -162,12 +162,12 @@ public class ProjectService {
     public Client addEmployeeToSpecProject(String clientId, Project project) {
         var client = clientRepository.findById(clientId);
         client.ifPresent(c -> {
-            if(c.getProjects() == null){
+            if (c.getProjects() == null) {
                 c.setProjects(new HashSet<>());
             }
-            if(c.getProjects().stream()
+            if (c.getProjects().stream()
                     .map(Project.class::cast)
-                    .noneMatch(p->p.getProjectName()
+                    .noneMatch(p -> p.getProjectName()
                             .equals(project.getProjectName()))) {
                 c.addProject(project);
             }
@@ -190,22 +190,22 @@ public class ProjectService {
     }
 
     public void removeEmployeeFromProject(String projectName, String clientId) {
-            clientRepository.findById(clientId).ifPresent(
-                    c -> {
-                        c.setActualProject(null);
-                        c.setIsBusy(false);
-                        clientRepository.save(c);
-                    }
-            );
+        clientRepository.findById(clientId).ifPresent(
+                c -> {
+                    c.setActualProject(null);
+                    c.setIsBusy(false);
+                    clientRepository.save(c);
+                }
+        );
 
-            projectRepository.findProjectByProjectName(projectName).ifPresent(p -> {
-                   var cc = p.getEmployeesOnProject().stream().filter(e -> e.getClientId().equals(clientId)).findAny();
-                    cc.ifPresent(value -> p.getEmployeesOnProject().remove(value));
-                projectRepository.save(p);
-            });
-            clientRepoElastic.findById(clientId).ifPresent(c -> {
-                c.setActualProject(null);
-                clientRepoElastic.save(c);
-            });
+        projectRepository.findProjectByProjectName(projectName).ifPresent(p -> {
+            var cc = p.getEmployeesOnProject().stream().filter(e -> e.getClientId().equals(clientId)).findAny();
+            cc.ifPresent(value -> p.getEmployeesOnProject().remove(value));
+            projectRepository.save(p);
+        });
+        clientRepoElastic.findById(clientId).ifPresent(c -> {
+            c.setActualProject(null);
+            clientRepoElastic.save(c);
+        });
     }
 }

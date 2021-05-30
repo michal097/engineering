@@ -45,15 +45,17 @@ public class ArchivalDataController {
     }
 
     @GetMapping("getInvoiceSize")
-    public long getInvoiceSize(){
+    public long getInvoiceSize() {
         return archivalService.getInvoiceSize();
     }
+
     @GetMapping("getIssuesSize")
-    public long getIssuesSize(){
+    public long getIssuesSize() {
         return archivalService.getIssuesSize();
     }
+
     @GetMapping("getProjectSize")
-    public long getProjectSize(){
+    public long getProjectSize() {
         return archivalService.getProjectSize();
     }
 

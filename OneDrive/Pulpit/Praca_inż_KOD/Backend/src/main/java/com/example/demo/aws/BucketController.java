@@ -22,8 +22,8 @@ public class BucketController {
     private final InvoiceRepo invoiceRepo;
     private final AmazonClient amazonClient;
     private final AdminService adminService;
-    private Invoice invoice;
     private final ClientInvoiceService clientInvoiceService;
+    private Invoice invoice;
 
     @Autowired
     BucketController(InvoiceRepo invoiceRepo, AmazonClient amazonClient, AdminService adminService, ClientInvoiceService clientInvoiceService) {
@@ -42,9 +42,9 @@ public class BucketController {
         try {
             var detectedText = amazonClient.detectTextOnImg(fileName);
             invoice = adminService.prepareReadData(detectedText);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("error during reading invoice...");
-           invoice = new Invoice();
+            invoice = new Invoice();
         }
         invoice.setInvoiceURL("https://enigeering.s3.us-east-2.amazonaws.com/" + fileName);
         invoice.setInvoiceUUID(UUID.randomUUID().toString());

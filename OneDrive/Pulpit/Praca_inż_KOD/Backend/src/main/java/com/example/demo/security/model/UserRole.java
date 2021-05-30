@@ -15,9 +15,9 @@ public class UserRole {
     private Role role;
     private String description;
 
-    public UserRole(Role role, String description){
-        this.role=role;
-        this.description=description;
+    public UserRole(Role role, String description) {
+        this.role = role;
+        this.description = description;
     }
 
 }

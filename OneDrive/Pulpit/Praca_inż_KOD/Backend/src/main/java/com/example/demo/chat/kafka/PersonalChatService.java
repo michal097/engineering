@@ -21,6 +21,7 @@ public class PersonalChatService {
         this.clientRepository = clientRepository;
         this.chatRepository = chatRepository;
     }
+
     @Transactional
     public Map<String, String> invitePersonToChat(String personUsername) {
         String whoIAm = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -31,30 +32,30 @@ public class PersonalChatService {
                 .filter(u -> u.getUsername().equals(whoIAm)
                         || u.getUsername().equals(personUsername)) //fetch actual user and target user
                 .forEach(chat -> {
-            if (chat.getChatIds() == null || chat.getChatIds().isEmpty()) {
-                chat.setChatIds(Set.of(chatID));
-                log.info("Chat id's is empty, create new set");
-            } else {
-                //check two ways of chat relation
-                    if(!chat.getChatIds().toString().contains(personUsername)
-                            || !chat.getChatIds().toString().contains(whoIAm)) {
-                        log.info("Chat id's don't contains such person, creates new chatID");
-                        chat.getChatIds().add(chatID);
+                    if (chat.getChatIds() == null || chat.getChatIds().isEmpty()) {
+                        chat.setChatIds(Set.of(chatID));
+                        log.info("Chat id's is empty, create new set");
+                    } else {
+                        //check two ways of chat relation
+                        if (!chat.getChatIds().toString().contains(personUsername)
+                                || !chat.getChatIds().toString().contains(whoIAm)) {
+                            log.info("Chat id's don't contains such person, creates new chatID");
+                            chat.getChatIds().add(chatID);
+                        }
                     }
-            }
-            clientRepository.save(chat);
-        });
+                    clientRepository.save(chat);
+                });
         boolean initiate = chatRepository.findAll()
                 .stream()
-                .anyMatch(c-> c.getPersonalChat()!= null
+                .anyMatch(c -> c.getPersonalChat() != null
                         && c.getPersonalChat().get(chatID) != null);
         Map<String, List<ModelChat>> initiateNewChat;
-        if(!initiate) {
-           initiateNewChat = new HashMap<>();
-           initiateNewChat.put(chatID, new ArrayList<>());
-           ModelChat m = new ModelChat();
-           m.setPersonalChat(initiateNewChat);
-           chatRepository.save(m);
+        if (!initiate) {
+            initiateNewChat = new HashMap<>();
+            initiateNewChat.put(chatID, new ArrayList<>());
+            ModelChat m = new ModelChat();
+            m.setPersonalChat(initiateNewChat);
+            chatRepository.save(m);
         }
 
         Map<String, String> map = new HashMap<>();

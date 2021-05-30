@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,7 +27,6 @@ public class PaymentsService {
         var invoicesToPay = invoiceRepo.findAll().stream().filter(i -> !i.isPaid()).collect(Collectors.toList());
         Page<Invoice> invoicesPage = new PageImpl<>(invoicesToPay, PageRequest.of(page, size), invoicesToPay.size());
         return invoicesPage.getContent();
-
     }
 
     public Invoice getInvoice(String id) {
@@ -41,14 +41,12 @@ public class PaymentsService {
         return new Invoice();
     }
 
-    public String getInvoiceIdByUUID(String UUID){
-        Optional<Invoice> invoiceID = invoiceRepo.findAll().stream().filter(id->id.getInvoiceUUID().equals(UUID)).findAny();
+    public String getInvoiceIdByUUID(String UUID) {
+        Optional<Invoice> invoiceID = invoiceRepo.findAll().stream().filter(id -> id.getInvoiceUUID().equals(UUID)).findAny();
         return invoiceID.map(Invoice::getInvoiceId).orElse("");
     }
 
-    public long getInvoicesToPaySize(){
+    public long getInvoicesToPaySize() {
         return invoiceRepo.findAll().stream().filter(i -> !i.isPaid()).count();
     }
-
-
 }

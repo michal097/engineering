@@ -1,8 +1,8 @@
 package com.example.demo.model;
 
+import com.mongodb.lang.NonNull;
 import lombok.Builder;
 import lombok.Data;
-import com.mongodb.lang.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 

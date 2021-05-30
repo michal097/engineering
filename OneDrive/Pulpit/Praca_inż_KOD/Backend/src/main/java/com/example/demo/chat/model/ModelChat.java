@@ -19,6 +19,7 @@ public class ModelChat {
     private LocalDateTime timeStamp;
     private Map<String, List<ModelChat>> personalChat;
     private String modelChatId;
+
     public ModelChat() {
 
     }
@@ -30,6 +31,6 @@ public class ModelChat {
 
     public ModelChat(String username, String message) {
         this.username = username;
-        this.message=message;
+        this.message = message;
     }
 }

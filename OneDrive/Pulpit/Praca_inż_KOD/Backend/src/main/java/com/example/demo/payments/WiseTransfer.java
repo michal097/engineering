@@ -3,6 +3,7 @@ package com.example.demo.payments;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,11 @@ import java.util.UUID;
 @Slf4j
 public class WiseTransfer {
 
-    private final String TOKEN = "2bf4b3fd-1714-4a92-a757-1ba692c50ac2";
-
-    private static RestTemplate restTemplate = new RestTemplate();
     private static final HttpHeaders headers = new HttpHeaders();
+    private static RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${wise.token}")
+    private String TOKEN;
 
 
     public WiseTransfer(RestTemplateBuilder restTemplateBuilder) {
@@ -71,13 +73,13 @@ public class WiseTransfer {
 
         Map<String, Object> detailsMap = new HashMap<>();
 
-        detailsMap.put("iban",iban);
+        detailsMap.put("iban", iban);
 
         Map<String, Object> map = new HashMap<>();
         map.put("currency", targetCurr);
         map.put("type", "iban");
         map.put("profile", getProfileId());
-        map.put("accountHolderName", name.replaceAll("_"," "));
+        map.put("accountHolderName", name.replaceAll("_", " "));
         map.put("legalType", "PRIVATE");
         map.put("details", detailsMap);
 
@@ -140,9 +142,9 @@ public class WiseTransfer {
         String fund = "https://api.sandbox.transferwise.tech/v3/profiles/{profileId}/transfers/{transferId}/payments";
         ResponseEntity<Object> response = restTemplate.postForEntity(fund, entity, Object.class, getProfileId(), createTransfer(amount, targetCurr, name, iban));
 
-        String [] stat = Objects.requireNonNull(checkHttpStatus(response)).toString().split(",");
-        for(String s: stat){
-            if(s.contains("status=")){
+        String[] stat = Objects.requireNonNull(checkHttpStatus(response)).toString().split(",");
+        for (String s : stat) {
+            if (s.contains("status=")) {
                 log.info("Payment has been finished");
                 return s.substring(8);
             }

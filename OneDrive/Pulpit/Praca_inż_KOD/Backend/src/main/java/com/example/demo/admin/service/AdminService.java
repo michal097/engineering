@@ -23,14 +23,25 @@ public class AdminService {
         this.clientRepository = clientRepository;
     }
 
-    public boolean searchExistingUsername(String username){
+    private static String deleteSpecialChars(String str) {
+        return str.replaceAll("ą", "a")
+                .replaceAll("ę", "e")
+                .replaceAll("ć", "c")
+                .replaceAll("ł", "l")
+                .replaceAll("ó", "o");
+
+
+    }
+
+    public boolean searchExistingUsername(String username) {
         return clientRepository.findAllByUsername(username).isPresent();
     }
+
     public String makeUserName(String name, String surname) {
         StringBuilder username = new StringBuilder(deleteSpecialChars(name).substring(0, 1).concat(deleteSpecialChars(surname)));
         boolean isPres = searchExistingUsername(username.toString());
         int i = 0;
-        while(isPres){
+        while (isPres) {
             username.append(i);
             i++;
             isPres = searchExistingUsername(username.toString());
@@ -56,12 +67,11 @@ public class AdminService {
                 findUserData.put("surname", userData[userData.length - 1]);
             } else if (list.get(i).toLowerCase().contains("vat id")) {
                 findUserData.put("bank", list.get(i + 2));
-                if(findUserData.get("vat id") == null) {
-                    findUserData.put("vat id", list.get(i).replaceAll("VAT ID ", ""));
-                }
+                int finalI = i;
+                findUserData.computeIfAbsent("vat id", k -> list.get(finalI).replaceAll("VAT ID ", ""));
             } else if (list.get(i).contains("Total gross price")) {
 
-                findUserData.put("costs", list.get(i+1)
+                findUserData.put("costs", list.get(i + 1)
                         .replaceAll("EUR ", "")
                         .replaceAll(" ", "")
                         .replaceAll(",", ""));
@@ -78,16 +88,6 @@ public class AdminService {
                 .bankAccNumber(findUserData.get("bank"))
                 .fvNumber(findUserData.get("fvNr"))
                 .build();
-
-    }
-
-    private static String deleteSpecialChars(String str) {
-        return str.replaceAll("ą", "a")
-                .replaceAll("ę", "e")
-                .replaceAll("ć", "c")
-                .replaceAll("ł", "l")
-                .replaceAll("ó", "o");
-
 
     }
 }

@@ -46,6 +46,8 @@ public class Client {
 
     //chat
     private Set<String> chatIds;
+    private LocalDate startProject;
+    private LocalDate endProject;
 
     public void addProject(Project project) {
         if (this.projects == null) {
@@ -58,8 +60,5 @@ public class Client {
         this.setIsBusy(false);
         return true;
     }
-
-    private LocalDate startProject;
-    private LocalDate endProject;
 
 }

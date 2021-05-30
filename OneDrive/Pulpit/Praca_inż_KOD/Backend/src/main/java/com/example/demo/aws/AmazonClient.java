@@ -24,7 +24,6 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -48,13 +47,6 @@ public class AmazonClient {
 
     @Value("${aws.secretKey}")
     private String secretKey;
-
-    @Value("${aws.region}")
-    private String region;
-
-    @Value("${aws.textractUrl}")
-    private String textractUrl;
-
     private final AWSCredentialsProvider creds = new AWSCredentialsProvider() {
         @Override
         public AWSCredentials getCredentials() {
@@ -76,6 +68,10 @@ public class AmazonClient {
 
         }
     };
+    @Value("${aws.region}")
+    private String region;
+    @Value("${aws.textractUrl}")
+    private String textractUrl;
 
     @PostConstruct
     private void initializeAmazon() {

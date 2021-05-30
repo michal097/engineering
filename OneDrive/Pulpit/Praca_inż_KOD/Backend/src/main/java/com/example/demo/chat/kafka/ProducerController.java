@@ -11,7 +11,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import com.example.demo.chat.model.ChatRepository;
 import com.example.demo.chat.model.ModelChat;
@@ -111,11 +110,12 @@ public class ProducerController {
                 .stream()
                 .filter(p-> p.getChatID()!= null && p.getChatID()
                         .equals(chatId.get())
-                && p.getSendFrom().equals(finalActualUser)).findAny();
+                        && p.getSendFrom().equals(finalActualUser)).findAny();
         if(!pChatPokes.isPresent()){
             personalChatPokesRepository.save(new PersonalChatPokes(chatId.get(),username, actualUser, 1));
         }else{
             pChatPokes.get().setCounter(pChatPokes.get().getCounter() + 1);
+            pChatPokes.get().setTimeStamp(LocalDateTime.now());
             personalChatPokesRepository.save(pChatPokes.get());
         }
 
@@ -125,12 +125,24 @@ public class ProducerController {
     }
 
     @GetMapping("getChatCounter/{chatID}/{sendFrom}")
-    public int getChatCounter(@PathVariable String chatID, @PathVariable String sendFrom){
+    public PersonalChatPokes getChatCounter(@PathVariable String chatID, @PathVariable String sendFrom){
         var personalChatTarget = personalChatPokesRepository.findAll()
                 .stream()
                 .filter(p-> p.getChatID().equals(chatID) && p.getSendFrom().equals(sendFrom))
                 .findAny();
-        return personalChatTarget.map(PersonalChatPokes::getCounter).orElse(0);
+
+        return personalChatTarget.orElse(new PersonalChatPokes());
+    }
+
+    @GetMapping("getAllChatsCounter/{username}")
+    public int getAllChatsCounter(@PathVariable String username){
+        return personalChatPokesRepository.findAll()
+                .stream()
+                .filter(person -> person.getSendTo()
+                        .equals(username))
+                .map(PersonalChatPokes::getCounter)
+                .reduce(Integer::sum)
+                .orElse(0);
     }
 
     @GetMapping("markAsRead/{chatID}/{sendFrom}")

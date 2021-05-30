@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -27,7 +27,9 @@ public class SearchController {
     private final InvoiceRepoElastic invoiceRepoElastic;
     private final ClientRepoElastic clientRepository;
     private final ExtClientRepoElastic externalClientRepo;
-
+    private long invSize;
+    private long clientSize;
+    private long extClientSize;
     @Autowired
     public SearchController(InvoiceRepoElastic invoiceRepoElastic, ClientRepoElastic clientRepository, ExtClientRepoElastic externalClientRepo) {
         this.invoiceRepoElastic = invoiceRepoElastic;
@@ -35,13 +37,9 @@ public class SearchController {
         this.externalClientRepo = externalClientRepo;
     }
 
-    private long invSize;
-    private long clientSize;
-    private long extClientSize;
-
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("searchInvoice/{phrase}/{page}/{size}")
-    public List<Invoice> makeSearch(@PathVariable String phrase, @PathVariable int page,@PathVariable int size) {
+    public List<Invoice> makeSearch(@PathVariable String phrase, @PathVariable int page, @PathVariable int size) {
 
         List<Invoice> searchInv = invoiceRepoElastic.findNIPWithFuzziness(phrase, PageRequest.of(page, size));
 
@@ -55,7 +53,7 @@ public class SearchController {
     @GetMapping("searchClients/{phrase}/{page}/{size}")
     public List<Client> clients(@PathVariable String phrase, @PathVariable int page, @PathVariable int size) {
 
-         var cl = clientRepository.findClientsBySearchPhrase(phrase, PageRequest.of(page, size));
+        var cl = clientRepository.findClientsBySearchPhrase(phrase, PageRequest.of(page, size));
 
         clientSize = cl.size();
         log.info("found {} record for client search", clientSize);
@@ -65,9 +63,9 @@ public class SearchController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
     @GetMapping("searchExternal/{phrase}/{page}/{size}")
-    public List<ExternalClient> extClients(@PathVariable String phrase, @PathVariable int page,@PathVariable int size) {
+    public List<ExternalClient> extClients(@PathVariable String phrase, @PathVariable int page, @PathVariable int size) {
 
-            var extCl = externalClientRepo.findExternalClientsBySearchPhrase(phrase, PageRequest.of(page, size));
+        var extCl = externalClientRepo.findExternalClientsBySearchPhrase(phrase, PageRequest.of(page, size));
 
         extClientSize = extCl.size();
         log.info("found {} record for external client search", extClientSize);
@@ -77,17 +75,17 @@ public class SearchController {
 
 
     @GetMapping("invoiceLength")
-    public long invoiceSize(){
+    public long invoiceSize() {
         return this.invSize;
     }
 
     @GetMapping("clientLen")
-    public long clientSize(){
+    public long clientSize() {
         return this.clientSize;
     }
 
     @GetMapping("externalLen")
-    public long externalSize(){
+    public long externalSize() {
         return this.extClientSize;
     }
 }

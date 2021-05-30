@@ -1,9 +1,6 @@
 package com.example.demo.security.service;
 
-import java.util.HashSet;
-import java.util.Set;
-
-
+import com.example.demo.security.model.User;
 import com.example.demo.security.model.UserRole;
 import com.example.demo.security.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import com.example.demo.security.model.User;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {

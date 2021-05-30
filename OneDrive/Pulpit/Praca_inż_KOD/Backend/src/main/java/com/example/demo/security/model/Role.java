@@ -7,12 +7,12 @@ public enum Role {
 
     private final String roleName;
 
-    Role(String roleName){
+    Role(String roleName) {
         this.roleName = roleName;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.roleName;
     }
 }

@@ -56,12 +56,16 @@ public class IssueService {
         if (getUser.isPresent()) {
             isUser = getUser.get().getUserType().equals(Role.ROLE_USER);
             if (isUser) {
-                return issueRepo.findAll().stream().filter(rep -> rep.getReporter().equals(getUser.get())).collect(Collectors.toList());
+                return issueRepo.findAll()
+                        .stream()
+                        .filter(rep -> rep.getReporter()
+                                .equals(getUser.get()))
+                        .collect(Collectors.toList());
             }
         }
         var iss = issueRepo.findAll().stream().filter(issue -> !issue.getStatus().equals(EIssue.FINISHED)).collect(Collectors.toList());
 
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
         Page<Issue> p = new PageImpl<>(iss, pageable, iss.size());
 
         return p.getContent();
@@ -95,7 +99,7 @@ public class IssueService {
         }).orElse(null);
     }
 
-    public long countNotEndedIssues(){
-       return issueRepo.findAll().stream().filter(i->!i.getStatus().equals(EIssue.FINISHED)).count();
+    public long countNotEndedIssues() {
+        return issueRepo.findAll().stream().filter(i -> !i.getStatus().equals(EIssue.FINISHED)).count();
     }
 }

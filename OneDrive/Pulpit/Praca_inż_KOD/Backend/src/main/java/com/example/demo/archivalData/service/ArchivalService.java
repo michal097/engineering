@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -34,7 +35,7 @@ public class ArchivalService {
 
     public List<Invoice> collectArchivalInvoices(int page, int size) {
         var inv = invoiceRepo.findAll().stream().filter(Invoice::isPaid).collect(toList());
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
         Page<Invoice> i = new PageImpl<>(inv, pageable, inv.size());
         return i.getContent();
     }
@@ -42,24 +43,27 @@ public class ArchivalService {
 
     public List<Issue> collectArchivalIssues(int page, int size) {
         var iss = issueRepo.findAll().stream().filter(i -> i.getStatus().equals(EIssue.FINISHED)).collect(toList());
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
         Page<Issue> i = new PageImpl<>(iss, pageable, iss.size());
         return i.getContent();
     }
 
     public List<Project> collectArchivalProjects(int page, int size) {
         var p = projectRepository.findAll().stream().filter(Project::getEnded).collect(toList());
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page, size);
         Page<Project> pro = new PageImpl<>(p, pageable, p.size());
         return pro.getContent();
     }
-    public long getInvoiceSize(){
+
+    public long getInvoiceSize() {
         return invoiceRepo.findAll().stream().filter(Invoice::isPaid).count();
     }
-    public long getIssuesSize(){
+
+    public long getIssuesSize() {
         return issueRepo.findAll().stream().filter(i -> i.getStatus().equals(EIssue.FINISHED)).count();
     }
-    public long getProjectSize(){
+
+    public long getProjectSize() {
         return projectRepository.findAll().stream().filter(Project::getEnded).count();
     }
 }

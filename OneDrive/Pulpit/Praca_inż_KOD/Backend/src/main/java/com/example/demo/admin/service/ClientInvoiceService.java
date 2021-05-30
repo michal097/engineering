@@ -26,14 +26,16 @@ public class ClientInvoiceService {
     private final InvoiceRepo invoiceRepo;
     private final ExternalClientRepo externalClientRepo;
     private final ExtClientRepoElastic extClientRepoElastic;
+    private Invoice invoiceClient;
+
     @Autowired
-    public ClientInvoiceService(ClientRepository clientRepository,ExtClientRepoElastic extClientRepoElastic, InvoiceRepo invoiceRepo, ExternalClientRepo externalClientRepo) {
+    public ClientInvoiceService(ClientRepository clientRepository, ExtClientRepoElastic extClientRepoElastic, InvoiceRepo invoiceRepo, ExternalClientRepo externalClientRepo) {
         this.clientRepository = clientRepository;
         this.invoiceRepo = invoiceRepo;
         this.externalClientRepo = externalClientRepo;
-        this.extClientRepoElastic=extClientRepoElastic;
+        this.extClientRepoElastic = extClientRepoElastic;
     }
-    private Invoice invoiceClient;
+
     public void checkClient(Invoice invoice) {
         Optional<Client> clientIsPresent =
                 clientRepository.findByNIP(invoice.getNIP());
@@ -68,7 +70,7 @@ public class ClientInvoiceService {
                 double costs = extClient.getCosts() + invoice.getCosts();
                 extClient.setCosts(costs);
                 extClient.getExternalClientInvoices().add(invoiceClient);
-                extClientRepoElastic.findByNip(extClient.getNip()).ifPresent(e-> {
+                extClientRepoElastic.findByNip(extClient.getNip()).ifPresent(e -> {
                     e.setCosts(costs);
                     extClientRepoElastic.save(e);
                 });

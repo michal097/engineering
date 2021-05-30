@@ -52,7 +52,7 @@ public class IssueController {
     }
 
     @GetMapping("issuesLen")
-    public long notEndedIssues(){
+    public long notEndedIssues() {
         return issueService.countNotEndedIssues();
     }
 }

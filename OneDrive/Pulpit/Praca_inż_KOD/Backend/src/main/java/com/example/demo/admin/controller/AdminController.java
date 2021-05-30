@@ -8,31 +8,20 @@ import com.example.demo.model.Client;
 import com.example.demo.model.Project;
 import com.example.demo.mongoRepo.ClientRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.IOUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,11 +58,11 @@ public class AdminController {
     @PostMapping("createUser")
     public Client createClient(@RequestBody Client client) {
         //Make first letter upper
-       client.setName(client.getName().substring(0,1).toUpperCase() +
-               client.getName().substring(1).toLowerCase());
+        client.setName(client.getName().substring(0, 1).toUpperCase() +
+                client.getName().substring(1).toLowerCase());
 
-       client.setSurname(client.getSurname().substring(0,1).toUpperCase() +
-               client.getSurname().substring(1).toLowerCase());
+        client.setSurname(client.getSurname().substring(0, 1).toUpperCase() +
+                client.getSurname().substring(1).toLowerCase());
         //generates unique username
         client.setUsername(adminService.makeUserName(client.getName(), client.getSurname()));
         mailService.sendSimpleMail(client.getEmail(),
@@ -108,7 +97,7 @@ public class AdminController {
     @GetMapping("listAllEmployees/{page}/{size}")
     public List<Client> listAllEmployees(@PathVariable int page, @PathVariable int size) {
         return clientRepository.findAll(PageRequest.of(page, size, Sort.Direction.ASC, "name", "surname"))
-                               .getContent();
+                .getContent();
     }
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MODERATOR')")
@@ -169,12 +158,12 @@ public class AdminController {
     @GetMapping("getReport/{from}/{to}")
     public ResponseEntity<?> getReport(@PathVariable String from, @PathVariable String to) throws IOException {
         invoiceReport.generateReport(from, to);
-            File file = new File(invoiceReport.getPATH());
-            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment;filename=" + file.getName())
-                    .contentType(MediaType.APPLICATION_PDF).contentLength(file.length())
-                    .body(resource);
-        }
+        File file = new File(invoiceReport.getPATH());
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename=" + file.getName())
+                .contentType(MediaType.APPLICATION_PDF).contentLength(file.length())
+                .body(resource);
+    }
 }

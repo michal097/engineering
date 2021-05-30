@@ -29,10 +29,10 @@ public class Listener {
     public void processMessage(ConsumerRecord<String, ModelChat> cr, @Payload ModelChat content) {
         LOG.info("Received content from Kafka: {}", content);
 
-        if(content.getModelChatId() != null){
+        if (content.getModelChatId() != null) {
             this.webSocket.convertAndSend(Constants.WEBSOCKET_DESTINATION + "/" + content.getModelChatId(), content);
 
-        }else
-        this.webSocket.convertAndSend(Constants.WEBSOCKET_DESTINATION, content);
+        } else
+            this.webSocket.convertAndSend(Constants.WEBSOCKET_DESTINATION, content);
     }
 }

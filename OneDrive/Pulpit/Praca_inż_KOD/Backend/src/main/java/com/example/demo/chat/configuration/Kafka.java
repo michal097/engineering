@@ -12,17 +12,17 @@ import org.springframework.util.backoff.FixedBackOff;
 @Configuration
 public class Kafka {
 
-	@Bean
-	public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> kafkaListenerContainerFactory(
-			ConsumerFactory<String, Object> consumerFactory) {
-		ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
-		factory.setConsumerFactory(consumerFactory);
-		factory.setConcurrency(3);
-		factory.getContainerProperties().setPollTimeout(3000);
+    @Bean
+    public KafkaListenerContainerFactory<ConcurrentMessageListenerContainer<String, Object>> kafkaListenerContainerFactory(
+            ConsumerFactory<String, Object> consumerFactory) {
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory);
+        factory.setConcurrency(3);
+        factory.getContainerProperties().setPollTimeout(3000);
 
-		factory.setErrorHandler(new SeekToCurrentErrorHandler(new FixedBackOff(5000, 2)));
+        factory.setErrorHandler(new SeekToCurrentErrorHandler(new FixedBackOff(5000, 2)));
 
-		return factory;
-	}
+        return factory;
+    }
 
 }
